@@ -32,3 +32,15 @@
     std::cerr << os_.str();                                       \
     exit(1);                                                      \
 }
+
+#include <memory>
+//ENUMS
+enum
+    ShapeType {
+    EMPTY = 0,
+    CIRCLE = 1,
+    RECTANGLE = 2,
+    TRIANGLE = 3,
+    POLYGON = 4,
+    LINE = 5
+};
