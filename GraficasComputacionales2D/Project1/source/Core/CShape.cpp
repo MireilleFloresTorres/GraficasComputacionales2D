@@ -23,7 +23,8 @@ CShape::createShape(ShapeType shapeType) {
 	switch (shapeType)
 	{
 	case EMPTY: 
-		break; 
+		return nullptr; 
+
 	case CIRCLE: 
 	{
 		auto circle = std::make_unique<sf::CircleShape>(50.f); 

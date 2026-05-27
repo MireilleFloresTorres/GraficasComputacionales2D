@@ -9,7 +9,8 @@
 #include <map>
 #include <fstream>
 #include <unordered_map>
-
+#include <limits>
+#include <cassert>
 //Third parties
 #include <SFML/Graphics.hpp>
 

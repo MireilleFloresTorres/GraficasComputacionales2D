@@ -1,8 +1,9 @@
 #include "Core/Window.h"
 
 Window::Window(int width, int height, const std::string& tittle) {
-	m_window = new sf::RenderWindow(sf::VideoMode({ static_cast<unsigned int>(width),
-													static_cast<unsigned int>(height) }),
+	m_window = std::make_unique<sf::RenderWindow>(
+	sf::VideoMode({ static_cast<unsigned int>(width),
+					static_cast<unsigned int>(height) }),
 											tittle,
 											sf::Style::Default); 
 	if (m_window) {
@@ -13,10 +14,6 @@ Window::Window(int width, int height, const std::string& tittle) {
 		ERROR("Window", "window", "Failed to created window");
 	}
 
-}
-
-Window::~Window() {
-	SAFE_PTR_RELEASE(m_window); 
 }
 
 bool Window::isOpen() const {
@@ -82,5 +79,5 @@ Window::render() {
 
 void
 Window::destroy() {
-	SAFE_PTR_RELEASE(m_window); 
+	m_window.reset(); 
 }

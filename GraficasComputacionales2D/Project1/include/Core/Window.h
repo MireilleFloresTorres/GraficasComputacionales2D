@@ -6,7 +6,7 @@ Window {
 public: 
 	Window() = default; 
 	Window(int width, int height, const std::string& tittle);
-	~Window();
+	~Window() = default; 
 
 	//void
 	//handleEvents(EngineGUI& engineGUI);
@@ -36,7 +36,7 @@ public:
 	void
 	destroy(); 
 
-	sf::RenderWindow* m_window = nullptr;
+	std::unique_ptr<sf::RenderWindow> m_window = nullptr; 
 private: 
 	sf::View m_view;
 	sf::Time deltaTime;

@@ -2,7 +2,7 @@
 #include "Core/Window.h"
 #include "Core/CShape.h"
 
-Window* g_window = nullptr; 
+Window* g_window = nullptr;
 CShape Circle(ShapeType::CIRCLE); 
 CShape line(ShapeType::LINE); 
 

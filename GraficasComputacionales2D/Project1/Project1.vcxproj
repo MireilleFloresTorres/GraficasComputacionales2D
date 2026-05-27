@@ -179,6 +179,8 @@
   <ItemGroup>
     <ClInclude Include="include\Core\CShape.h" />
     <ClInclude Include="include\Core\Window.h" />
+    <ClInclude Include="include\ECS\SparseSet.h" />
+    <ClInclude Include="include\ECS\Types.h" />
     <ClInclude Include="include\Prerequisites.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
