@@ -1,11 +1,14 @@
 #include "Core/Window.h"
 
 Window::Window(int width, int height, const std::string& tittle) {
+	//el sttd make unique crea el objeto render window
 	m_window = std::make_unique<sf::RenderWindow>(
 	sf::VideoMode({ static_cast<unsigned int>(width),
 					static_cast<unsigned int>(height) }),
 											tittle,
 											sf::Style::Default); 
+	//seguridad, evalua los uique ptr, el set famre
+	//limita a 60 para no consumir cpu o gpu inceseario
 	if (m_window) {
 		m_window->setFramerateLimit(60); 
 		MESSAGE("Window", "Window", "Window created successfully");
@@ -68,7 +71,8 @@ Window::display() {
 
 void 
 Window::update() {
-	//almacena el delta time solo una vez
+	//almacena el delta time el tiempo de la ulrima vez llmadp
+	//reinicia el reloj 
 	deltaTime = clock.restart(); 
 }
 

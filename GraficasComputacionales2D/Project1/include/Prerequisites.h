@@ -11,10 +11,13 @@
 #include <unordered_map>
 #include <limits>
 #include <cassert>
+#include <utility>
+
 //Third parties
 #include <SFML/Graphics.hpp>
 
 // MACRO for safe release of resources
+//Macro is a code that the compiler replaces textually
 #define SAFE_PTR_RELEASE(x) if(x != nullptr) { delete x; x = nullptr; }
 
 #define MESSAGE(classObj, method, state)                      \

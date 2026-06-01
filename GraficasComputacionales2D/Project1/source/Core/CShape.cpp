@@ -2,12 +2,14 @@
 #include "Core/Window.h"
 
 CShape::CShape(ShapeType shapeType) : m_shapeType(shapeType), m_shape(createShape(shapeType)) {
-
+// . es una lita de inicialización, aquí van las variables miembro
 }
 
 void
 CShape::draw(Window& window) {
+	//verifica que unique_ptr no se nullptr antes de usarlo
 	if (m_shape) {
+		// se pone desreferencia 
 		window.draw(*m_shape); 
 	}
 }

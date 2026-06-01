@@ -1,6 +1,7 @@
 #pragma once
 #include "Prerequisites.h"
 
+//clase envoltoria
 class
 Window {
 public: 
@@ -11,22 +12,26 @@ public:
 	//void
 	//handleEvents(EngineGUI& engineGUI);
 
+	//Consulta si la ventana sigue abierta, retorna t o f
 	bool
 	isOpen() const; 
-
+	
+	//limpia la pantalla antes de dibujar el siguiente frame
 	void
 	clear(const sf::Color& color = sf::Color(0, 0, 0, 255));
 
+	//clase abstracta
 	void
 	draw(const sf::Drawable& drawable,
 		const sf::RenderStates& states = sf::RenderStates::Default);
-
+	//intercambia buferes
 	void
 	display();
 
 	void
 	close(); 
 
+	//actualiza con frames
 	void
 	update(); 
 
@@ -35,7 +40,7 @@ public:
 
 	void
 	destroy(); 
-
+	//puntero inteligente de la ventana real
 	std::unique_ptr<sf::RenderWindow> m_window = nullptr; 
 private: 
 	sf::View m_view;

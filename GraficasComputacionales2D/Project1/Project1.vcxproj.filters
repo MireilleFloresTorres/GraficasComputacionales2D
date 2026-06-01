@@ -50,5 +50,8 @@
     <ClInclude Include="include\ECS\SparseSet.h">
       <Filter>Header Files\ECS</Filter>
     </ClInclude>
+    <ClInclude Include="include\ECS\ComponentPool.h">
+      <Filter>Header Files\ECS</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
