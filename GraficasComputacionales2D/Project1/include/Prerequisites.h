@@ -12,6 +12,9 @@
 #include <limits>
 #include <cassert>
 #include <utility>
+#include <tuple>
+#include <cstddef>
+#include <queue>
 
 //Third parties
 #include <SFML/Graphics.hpp>
