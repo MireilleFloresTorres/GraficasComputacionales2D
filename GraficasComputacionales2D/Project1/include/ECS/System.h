@@ -26,7 +26,7 @@ namespace ECS {
 
 		//logica frame a frame
 		virtual void
-		Update(Registry& registry, float deltaTime) = 0;
+		OnUpdate(Registry& registry, float deltaTime) = 0;
 
 		//limpieza al destruir el sistema
 		virtual void 
@@ -37,7 +37,7 @@ namespace ECS {
 		SetEnable(bool enabled) noexcept {m_enabled = enabled;}
 
 		void SetEnable(bool enabled) noexcept { m_enabled = enabled;  }
-		[[nodiscard]] bool ISEnabled() const noexcept { return m_enabled;}
+		[[nodiscard]] bool IsEnabled() const noexcept { return m_enabled;}
 
 	private:
 		bool m_enabled = true;

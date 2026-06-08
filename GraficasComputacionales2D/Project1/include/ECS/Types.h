@@ -62,6 +62,7 @@ namespace ECS {
 			static_cast<EntityID>(index);
 	}
 
+
 	//---Generador de IDs de tipo componente ---//
 	//Cada tipi T obtiene un ID único en tiempo de ejecución 
 	//la primera vez que se llama a GetComponentTypeID<T>()

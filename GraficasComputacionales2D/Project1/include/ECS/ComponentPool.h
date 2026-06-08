@@ -11,7 +11,7 @@ namespace ECS {
 
 		//elimina el componente de la entidad si existe
 		virtual void 
-		Remove(EntityID entity) = 0;
+		RemoveEntity(EntityID entity) = 0;
 
 		//puntero sin tipo al componente (para serializar) 
 		virtual void* 
