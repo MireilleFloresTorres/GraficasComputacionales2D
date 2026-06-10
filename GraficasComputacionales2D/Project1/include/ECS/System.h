@@ -1,42 +1,47 @@
 #pragma once
-//ECS ::System.h
-// Clase base para todos los sistemas del motor
-//
-//un sistema contiene unicmaente lógica, nunca datos
-//Los datos vieven en los componentes 
-//
-//Ciclo de vida:
-//OnStart-> llamado una vez al registrar el sistema
-//Onupdate-> llamado cada frame
-//OnStop -> llamado al destruir o desrefistrar el sistema
+/**
+ * @file System.h
+ * @brief Clase base para todos los sistemas del ECS.
+ *
+ * Un sistema contiene únicamente lógica, nunca datos.
+ * Los datos viven en los componentes.
+ *
+ * Ciclo de vida: `OnStart` ->  `OnUpdate` (cada frame) -> `OnDestroy`.
+ */
 
 namespace ECS {
 
-	//Foward declaration para evitar in lcusión circular
+	// @brief Forward declaration para evitar inclusión circular
 	class Registry; 
 
+	/**
+	 * @class System
+	 * @brief Interfaz base que deben heredar todos los sistemas del motor
+	 */
 	class
 		System {
 	public:
 		virtual 		~System() = default; 
 
-		//inicialización: reservar recursos, suscribirse a eventos etc.
+		/** @brief Inicialización, reservar recursos, suscribirse a eventos, etc */
 		virtual void 
 		OnStart(Registry& /*Registry*/) {}
 
-		//logica frame a frame
+		/** @brief Lógica frame a frame. Obligatorio implementar en subclases*/
 		virtual void
 		OnUpdate(Registry& registry, float deltaTime) = 0;
 
-		//limpieza al destruir el sistema
+		/** @brief Limpieza al destruir o desregistrar el sistema*/
 		virtual void 
 		OnDestroy(Registry& /*Registry*/) {}
 
-		//opcional: activa/desactica el sistema sin destruirlo
+		/** @brief Activa o desactiva el sistema sin destruirlo*/
 		virtual void 
 		SetEnable(bool enabled) noexcept {m_enabled = enabled;}
 
 		void SetEnable(bool enabled) noexcept { m_enabled = enabled;  }
+
+		/** @brief Retorna true si el sistema está activo. */
 		[[nodiscard]] bool IsEnabled() const noexcept { return m_enabled;}
 
 	private:

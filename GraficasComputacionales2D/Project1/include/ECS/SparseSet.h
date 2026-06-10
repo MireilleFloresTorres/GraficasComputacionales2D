@@ -3,13 +3,23 @@
 #include "Types.h"
 
 namespace ECS{
+	/**
+	 * @class SparseSet
+	 * @brief Estructura de datos para asociar entidades a índices densos de forma eficiente.
+	 *
+	 * Permite inserción, eliminación y consulta en O(1) usando dos arrays paralelos:
+	 * - `m_sparse`: mapea EntityIndex -> índice denso.
+	 * - `m_dense`: lista compacta de EntityIDs activos.
+	 */
 	class
 	SparseSet {
 	public: 
 		SparseSet(); 
 		virtual ~SparseSet() = default; 
 
-	// Consultas
+	//@brief ---- Consultas ---- */
+
+	/** @brief Retorna `true` si la entidad está en el set. */
 	[[nodisdcard]] bool Contains(EntityID entity) const noexcept {
 		const EntityIndex idx = GetEntityIndex(entity); 
 		if (idx >= m_sparse.size()) return false; 
@@ -17,21 +27,27 @@ namespace ECS{
 		return denseIdx < m_dense.size() && m_dense[denseIdx] == entity; 
 	}
 
-	
+	/** @brief Número de entidades registradas. */
 	[[nodiscard]] size_t Size() const noexcept { return m_dense.size(); }
+
+	/** @brief Retorna `true` si el set está vacío. */
 	[[nodiscard]] bool empty() const noexcept { return m_dense.empty(); }
 
+	/** @brief Referencia constante al array denso de EntityIDs activos. */
 	[[nodiscard]] const std::vector<EntityID>& GetEntities() const noexcept {
 		return m_dense; 
 	}
 
 
 
-	//---- Eliminaciín (swap-with-last) ----
-	//las subclases deben llamar a esta base después de 
-	//sincronizar sus prorpios arrays (ver component pool:: remove) 
+	/**
+		 * @brief Elimina una entidad usando swap-with-last para mantener densidad.
+		 *
+		 * @note Las subclases deben sincronizar sus propios arrays **antes** de
+		 * llamar a esta base (ver `ComponentPool::Remove`).
+		 * @param entity Entidad a eliminar. Debe estar en el set.
+		 */
 	virtual void Remove(EntityID entity) {
-
 		const EntityIndex sparseIdx = GetEntityIndex(entity); 
 		const EntityIndex denseidx = m_sparse[sparseIdx];
 		const EntityID last = m_dense.back(); 
@@ -45,6 +61,7 @@ namespace ECS{
 		m_sparse[sparseIdx] = INVALID; 
 	}
 
+	/** @brief Vacía completamente sparse y dense. */
 	virtual void Clear()
 	{
 		m_sparse.clear(); 

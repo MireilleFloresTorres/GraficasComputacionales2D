@@ -1,12 +1,14 @@
 #pragma once
 #include "Prerequisites.h"
 
-// ECS :: Types.h 
-// Tipos fundamentales del Entity Component System
-// Empaqueta 
-// Al destruir una entidad su version sube 1, así cualquier ENTYTI ID antiguo
-// guradado en otro sitio queda invalido
-
+/**
+ * @file Types.h
+ * @brief Tipos fundamentales del Entity Component System.
+ *
+ * El EntityID empaqueta un índice y una versión en un único `uint64_t`.
+ * Al destruir una entidad su versión se incrementa, invalidando cualquier
+ * ID antiguo que apuntara al mismo índice.
+ */
 namespace ECS {
 
 	using EntityIndex = uint32_t; //indice de la entidad en el array
@@ -18,6 +20,7 @@ namespace ECS {
 	// inline
 	//OxFFFFFFFF C++ 
 	//valor centinela para "ninguna entidad"
+	/// @brief Valor centinela que representa "ninguna entidad".
 	inline constexpr EntityID NULL_ENTITY = std::numeric_limits<EntityID> ::max(); 
 
 	//---Empaquetado y desempaquetado de EntityID ---//

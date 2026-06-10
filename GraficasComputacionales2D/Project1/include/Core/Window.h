@@ -1,7 +1,10 @@
 #pragma once
 #include "Prerequisites.h"
 
-//clase envoltoria
+/**
+ * @class Window
+ * @brief Clase envoltoria para la ventana de renderizado de SFML
+ */
 class
 Window {
 public: 
@@ -11,7 +14,6 @@ public:
 
 	//void
 	//handleEvents(EngineGUI& engineGUI);
-
 	//Consulta si la ventana sigue abierta, retorna t o f
 	bool
 	isOpen() const; 
@@ -20,10 +22,18 @@ public:
 	void
 	clear(const sf::Color& color = sf::Color(0, 0, 0, 255));
 
-	//clase abstracta
+	/**
+	 * @brief Dibuja un objeto renderizable
+	 * @param drawable es el objeto a dibujar
+	 * @param states Estados de renderizado en el proceso 
+	 */
 	void
 	draw(const sf::Drawable& drawable,
 		const sf::RenderStates& states = sf::RenderStates::Default);
+
+	/**
+	* @brief Muestra en la pantalla lo que se rendeirza 
+	*/
 	//intercambia buferes
 	void
 	display();

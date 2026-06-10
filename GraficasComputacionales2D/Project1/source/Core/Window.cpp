@@ -1,5 +1,11 @@
 #include "Core/Window.h"
 
+/**
+ * @brief Crea la ventana SFML y establece el límite de fotogramas a 60 FPS.
+ * @param width  Ancho en píxeles.
+ * @param height Alto en píxeles.
+ * @param tittle Título de la ventana.
+ */
 Window::Window(int width, int height, const std::string& tittle) {
 	m_window = std::make_unique<sf::RenderWindow>(
 		sf::VideoMode({ static_cast<unsigned int>(width),
@@ -14,10 +20,12 @@ Window::Window(int width, int height, const std::string& tittle) {
 	}
 }
 
+/** @brief Retorna true si la ventana sigue abierta. */
 bool Window::isOpen() const {    
 		return m_window->isOpen();
 }
 
+/** @brief Cierra la ventana, entonces egistra error si el puntero es nulo. */
 void
 Window::close() {
 	if (m_window) {
@@ -28,6 +36,9 @@ Window::close() {
 	}
 }
 
+/**
+ * @brief Limpia el buffer con el color indicado
+ */
 void
 Window::clear(const sf::Color& color) {
 	if (m_window) {
@@ -38,6 +49,10 @@ Window::clear(const sf::Color& color) {
 	}
 }
 
+/**
+ * @brief Dibuja un objeto en la ventana
+ * @param states  Estados de render (transform, shader, etc.).
+ */
 void
 Window::draw(const sf::Drawable& drawable, const sf::RenderStates& states) {
 	if (m_window) {
@@ -48,6 +63,7 @@ Window::draw(const sf::Drawable& drawable, const sf::RenderStates& states) {
 	}
 }
 
+/** @brief Presenta el buffer renderizado en pantalla */
 void 
 Window::display() {
 	if (m_window) {
@@ -65,11 +81,13 @@ Window::update() {
 	deltaTime = clock.restart(); 
 }
 
+/** @brief Reservado para lógica de render por frame. Actualmente sin implementación */
 void
 Window::render() {
 
 }
 
+/** @brief Libera el puntero */
 void
 Window::destroy() {
 	m_window.reset(); 

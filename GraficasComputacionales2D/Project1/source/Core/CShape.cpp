@@ -1,10 +1,18 @@
 #include "Core/CShape.h"
 #include "Core/Window.h"
 
+/**
+ * @brief Construye la figura inicializando el tipo y creando el Shape correspondiente
+ * shapeType es el Tipo de figura a crear
+ */
 CShape::CShape(ShapeType shapeType) : m_shapeType(shapeType), m_shape(createShape(shapeType)) {
 // . es una lita de inicialización, aquí van las variables miembro
 }
 
+/**
+ * @brief Dibuja la figura en la ventana si el puntero interno es válido
+ * @param en window está lo que se va a renderizar
+ */
 void
 CShape::draw(Window& window) {
 	//verifica que unique_ptr no se nullptr antes de usarlo
@@ -14,6 +22,7 @@ CShape::draw(Window& window) {
 	}
 }
 
+/** @brief Retorna el puntero raw al sf::Shape interno. */
 sf::Shape* CShape::getShape()
 {
 	return m_shape.get(); 
@@ -24,9 +33,11 @@ CShape::createShape(ShapeType shapeType) {
 
 	switch (shapeType)
 	{
+		
 	case EMPTY: 
 		return nullptr; 
 
+	//Implementación del circulo con posición, tamaño y color
 	case CIRCLE: 
 	{
 		auto circle = std::make_unique<sf::CircleShape>(50.f); 
@@ -34,6 +45,8 @@ CShape::createShape(ShapeType shapeType) {
 		circle->setPosition({ 100.0f, 100.0f }); 
 		return circle; 
 	}
+
+	//Implementación del recatangle con posición, tamaño y color
 	case RECTANGLE: 
 	{
 		auto rectangle = std::make_unique<sf::RectangleShape>(sf::Vector2f(100.f, 50.f)); 
@@ -42,6 +55,7 @@ CShape::createShape(ShapeType shapeType) {
 		return rectangle;
 	}
 
+	//Implementación del triangle con posición, tamaño y color
 	case TRIANGLE:
 	{
 		auto triangle = std::make_unique<sf::ConvexShape>(3); 
@@ -54,6 +68,7 @@ CShape::createShape(ShapeType shapeType) {
 
 	}
 
+	//Implementación del poligono con posición, tamaño y color
 	case POLYGON:
 	{
 		auto polygon = std::make_unique<sf::ConvexShape>(5); 
@@ -66,6 +81,8 @@ CShape::createShape(ShapeType shapeType) {
 		polygon->setPosition({ 400.0f, 400.0f }); 
 		return polygon;
 	}
+
+	//Implementación de un rectangulo con posición, tamaño y color, pero con un grosor de 1 para simular una línea
 	case LINE:
 	{
 		auto line = std::make_unique<sf::RectangleShape>(sf::Vector2f(100.f, 1.f)); 

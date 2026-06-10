@@ -1,16 +1,28 @@
 #pragma once
 #include "ECS/ComponentPool.h"
 
+/**
+ * @class View
+ * @brief Query multi-componente: itera solo entidades que posean todos los tipos indicados
+ * @tparam Components LOS tipos de componentes requeridos
+ */
 namespace ECS {
 	template<typename... Components>
 	class View {
 	public: 
+
+		/** @brief Construye la view a partir de los pools dados y localiza el más pequeño*/
 		explicit View(ComponentPool<Components>* ... pools) noexcept
 		: m_pools(pools...) {
 		FindSmallest(); 
 	}
-	// -----Iteración principal -----
-		//callback: void(EntityID, Components&...)
+	
+		/**
+		* @brief Itera entidades válidas e invoca `func(EntityID, Components&...)`.
+		*
+		* Recorre en orden inverso para permitir eliminaciones seguras durante la iteración.
+		* @tparam Func Callable con firma `void(EntityID, Components&...)`.
+		*/
 	template<typename Func> 
 		void Each(Func&& func) {
 		if (!m_smallest) return; 
@@ -31,8 +43,12 @@ namespace ECS {
 		}
 	}
 
-	//---- Iteración sollo de identidades ----
-	//util cuano solo se necesita el EntityID y accedes a componentes mauelmente
+	/**
+	 * @brief Itera entidades válidas invocando `func(EntityID)` sin desempaquetar componentes.
+	 *
+	 * Útil cuando se accede a los componentes manualmente.
+	 * @tparam Func Callable con firma `void(EntityID)`.
+	 */
 	template<typename Func> 
 	void EachEntityt(Func&& func)
 	{
@@ -50,7 +66,10 @@ namespace ECS {
 	[[nodiscard ]] std::size_t Size() const noexcept { return m_smallest ? m_smallest->Size() : 0;  }
 
 	private:
-	//Encuntra el pool con menos elementos (mejor filtro) 
+	/**
+	* @brief Selecciona recursivamente el pool con menos elementos (mejor filtro inicial).
+	* @tparam I Índice de iteración en tiempo de compilación.
+	*/
 	template<std::size_t I = 0>
 	void FindSmallest() noexcept {
 		if constexpr (I < sizeof...(Components)) {
@@ -61,6 +80,7 @@ namespace ECS {
 		}
 	}
 
+	/** @brief Retorna `true` si todos los pools contienen la entidad indicada. */
 	[[nodiscard]] bool AllHave(EntityID entity) const noexcept 
 	{
 		return std::apply(
