@@ -17,7 +17,7 @@ namespace ECS{
 		SparseSet(); 
 		virtual ~SparseSet() = default; 
 
-	//@brief ---- Consultas ---- */
+	/// @brief ---- Consultas ---- */
 
 	/** @brief Retorna `true` si la entidad está en el set. */
 	[[nodisdcard]] bool Contains(EntityID entity) const noexcept {

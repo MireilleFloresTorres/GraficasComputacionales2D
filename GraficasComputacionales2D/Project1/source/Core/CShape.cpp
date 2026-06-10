@@ -5,7 +5,8 @@
  * @brief Construye la figura inicializando el tipo y creando el Shape correspondiente
  * shapeType es el Tipo de figura a crear
  */
-CShape::CShape(ShapeType shapeType) : m_shapeType(shapeType), m_shape(createShape(shapeType)) {
+CShape::CShape(ShapeType shapeType) : m_shapeType(shapeType), 
+m_shape(createShape(shapeType)) {
 // . es una lita de inicialización, aquí van las variables miembro
 }
 
@@ -37,7 +38,7 @@ CShape::createShape(ShapeType shapeType) {
 	case EMPTY: 
 		return nullptr; 
 
-	//Implementación del circulo con posición, tamaño y color
+	/// @brief Implementación del circulo con posición, tamaño y color
 	case CIRCLE: 
 	{
 		auto circle = std::make_unique<sf::CircleShape>(50.f); 
@@ -46,16 +47,17 @@ CShape::createShape(ShapeType shapeType) {
 		return circle; 
 	}
 
-	//Implementación del recatangle con posición, tamaño y color
+	/// @brief  del recatangle con posición, tamaño y color
 	case RECTANGLE: 
 	{
-		auto rectangle = std::make_unique<sf::RectangleShape>(sf::Vector2f(100.f, 50.f)); 
+		auto rectangle = std::make_unique<sf::RectangleShape>
+			(sf::Vector2f(100.f, 50.f)); 
 		rectangle->setFillColor(sf::Color::White); 
 		rectangle->setPosition({ 200.0f, 200.0f }); 
 		return rectangle;
 	}
 
-	//Implementación del triangle con posición, tamaño y color
+	/// @brief Implementación del triangle con posición, tamaño y color
 	case TRIANGLE:
 	{
 		auto triangle = std::make_unique<sf::ConvexShape>(3); 
@@ -68,7 +70,7 @@ CShape::createShape(ShapeType shapeType) {
 
 	}
 
-	//Implementación del poligono con posición, tamaño y color
+	/// @brief Implementación del poligono con posición, tamaño y color
 	case POLYGON:
 	{
 		auto polygon = std::make_unique<sf::ConvexShape>(5); 
@@ -82,7 +84,7 @@ CShape::createShape(ShapeType shapeType) {
 		return polygon;
 	}
 
-	//Implementación de un rectangulo con posición, tamaño y color, pero con un grosor de 1 para simular una línea
+	/// @brief Implementación de un rectangulo con posición, tamaño y color, pero con un grosor de 1 para simular una línea
 	case LINE:
 	{
 		auto line = std::make_unique<sf::RectangleShape>(sf::Vector2f(100.f, 1.f)); 

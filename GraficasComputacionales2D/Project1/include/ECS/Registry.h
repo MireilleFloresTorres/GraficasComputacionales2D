@@ -137,10 +137,11 @@ namespace  ECS {
 		[[nodiscard]] T& GetComponent(EntityID entity) const {
 			assert(IsAlive(entity) && "GetComponent: entidad inválida"); 
 			auto* pool = GetPool<T>(); 
-			assert(pool && pool->Contains(entity) && "GetComponent: pool no existe apra este tipo"); 
+			assert(pool && pool->Contains(entity) &&
+				"GetComponent: pool no existe apra este tipo"); 
 			return pool->Get(entity); 
 		}
-		// brief Retorna una referencia constante al componente de tipo T de una entidad.
+		/// @brief Retorna una referencia constante al componente de tipo T de una entidad.
 		template<typename T>
 		[[nodiscard]] const T& GetComponent(EntityID entity) const {
 			assert(IsAlive(entity));
@@ -149,14 +150,14 @@ namespace  ECS {
 			return pool->Get(entity);
 		}
 
-		//acceso seguro que devuelve el puntero nullo si no tiene el componente
+		/// @brief acceso seguro que devuelve el puntero nullo si no tiene el componente
 		template<typename T>
 		[[nodiscard]] T* TryGetComponent(EntityID entity) noexcept {
 			auto* pool = GetPool<T>();
 			return pool ? pool->TryGet(entity): nullptr;
 		}
 
-		//viewa (queries multi-componente)
+		/// @brief viewa (queries multi-componente)
 		//ejemplo: registry.GetView<Transform, Velocity>()
 		template<typename... Components>
 		[[nodiscard ]] View<Components...> GetView() {

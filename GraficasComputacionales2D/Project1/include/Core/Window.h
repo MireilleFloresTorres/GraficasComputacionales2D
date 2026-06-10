@@ -14,11 +14,11 @@ public:
 
 	//void
 	//handleEvents(EngineGUI& engineGUI);
-	//Consulta si la ventana sigue abierta, retorna t o f
+	/// @brief Consulta si la ventana sigue abierta, retorna t o f
 	bool
 	isOpen() const; 
 	
-	//limpia la pantalla antes de dibujar el siguiente frame
+	/// @brief limpia la pantalla antes de dibujar el siguiente frame
 	void
 	clear(const sf::Color& color = sf::Color(0, 0, 0, 255));
 
@@ -41,7 +41,7 @@ public:
 	void
 	close(); 
 
-	//actualiza con frames
+	/// @brief actualiza con frames
 	void
 	update(); 
 
@@ -50,7 +50,7 @@ public:
 
 	void
 	destroy(); 
-	//puntero inteligente de la ventana real
+	/// @brief puntero inteligente de la ventana real
 	std::unique_ptr<sf::RenderWindow> m_window = nullptr; 
 private: 
 	sf::View m_view;

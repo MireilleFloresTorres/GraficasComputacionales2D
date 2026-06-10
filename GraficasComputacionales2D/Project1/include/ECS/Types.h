@@ -21,10 +21,11 @@ namespace ECS {
 	//OxFFFFFFFF C++ 
 	//valor centinela para "ninguna entidad"
 	/// @brief Valor centinela que representa "ninguna entidad".
-	inline constexpr EntityID NULL_ENTITY = std::numeric_limits<EntityID> ::max(); 
+	inline constexpr EntityID NULL_ENTITY = std::numeric_limits
+		<EntityID> ::max(); 
 
-	//---Empaquetado y desempaquetado de EntityID ---//
-	/**
+//---Empaquetado y desempaquetado de EntityID ---//
+/**
  * @brief Obtiene el índice de una entidad a partir de su EntityID.
  *
  * Esta función extrae los primeros 32 bits del identificador,
@@ -60,7 +61,8 @@ namespace ECS {
 	 * @param version Versión de la entidad.
 	 * @return EntityID Identificador completo de la entidad.
 	 */
-	[[nodiscard]] inline EntityID MakeEntityID(EntityIndex index, EntityVersion version) noexcept {
+	[[nodiscard]] inline EntityID MakeEntityID(EntityIndex index, 
+		EntityVersion version) noexcept {
 		return (static_cast<EntityID>(version) << 32) |
 			static_cast<EntityID>(index);
 	}

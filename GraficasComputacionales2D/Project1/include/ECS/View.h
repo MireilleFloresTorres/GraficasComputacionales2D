@@ -63,7 +63,9 @@ namespace ECS {
 	}
 
 	[[nodiscard ]] bool Empty() const noexcept { return !m_smallest || m_smallest->empty(); }
-	[[nodiscard ]] std::size_t Size() const noexcept { return m_smallest ? m_smallest->Size() : 0;  }
+
+	[[nodiscard ]] std::size_t Size() const noexcept 
+	{ return m_smallest ? m_smallest->Size() : 0;  }
 
 	private:
 	/**
