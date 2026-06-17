@@ -54,7 +54,7 @@ namespace ECS {
 	{
 		if (!m_smallest) return;
 		const auto& entities = m_smallest->GetEntities(); 
-		for (std::size_t i = entities.size(); i > 0; --)
+		for (std::size_t i = entities.size(); i > 0; )
 		{
 			const EntityID entity = entities[i - 1]; 
 			if (AllHave(entity))

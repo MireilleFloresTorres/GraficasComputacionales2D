@@ -39,7 +39,6 @@ namespace ECS {
 		virtual void 
 		SetEnable(bool enabled) noexcept {m_enabled = enabled;}
 
-		void SetEnable(bool enabled) noexcept { m_enabled = enabled;  }
 
 		/** @brief Retorna true si el sistema está activo. */
 		[[nodiscard]] bool IsEnabled() const noexcept { return m_enabled;}
