@@ -9,42 +9,84 @@
 Window g_window(Window(800, 600, "Labrid Engine"));
 ECS::Registry registry; 
 
-void destroy() {
-	//SAFE_PTR_RELEASE(g_window);
+void destroy()
+{
+	ImGui::SFML::Shutdown();
 }
 
-int
-main() {
-	registry.AddSystem<ECS::RenderSystem>(g_window); 
+int main()
+{
+    registry.AddSystem<ECS::RenderSystem>(g_window);
 
-	ECS::EntityID circle = registry.CreateEntity(); 
-	registry.AddComponent<ECS::Transform>(circle, sf::Vector2f{ 400.f, 300.f });
-	registry.AddComponent < ECS::Render>(circle, ECS::Render::Make(CIRCLE, sf::Color(100, 250, 50))); 
+    // m_window es un puntero a sf::RenderWindow.
+    if (!ImGui::SFML::Init(*g_window.m_window))
+    {
+        return -1;
+    }
 
-	ECS::EntityID tri = registry.CreateEntity();
-	registry.AddComponent<ECS::Transform>(tri, sf::Vector2f{ 200.f, 200.f }, 45.f);
-	registry.AddComponent < ECS::Render>(tri, ECS::Render::Make(TRIANGLE, sf::Color::Cyan));
+    // Habilitar docking.
+    ImGuiIO& io = ImGui::GetIO();
+    io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 
+    sf::Clock deltaClock;
+    bool showDemoWindow = true;
 
+    ECS::EntityID circle = registry.CreateEntity();
 
-	///@brief run the program as long as the window is open
-	while(g_window.isOpen()) {
-		//check all the window events thet were triggered since the last iteration of the loop
-		while (const std::optional event = g_window.m_window->pollEvent()) {
+    registry.AddComponent<ECS::Transform>(circle, sf::Vector2f{ 400.f, 300.f });
 
-			if (event->is<sf::Event::Closed>()) {
-				g_window.close(); 
-			}
-		}
+    registry.AddComponent<ECS::Render>(circle, ECS::Render::Make(CIRCLE, sf::Color(100, 250, 50)));
 
-		float dt = 1.f / 60.f; 
+    ECS::EntityID tri = registry.CreateEntity();
 
-		g_window.clear(sf::Color::Black); 
+    registry.AddComponent<ECS::Transform>(tri, sf::Vector2f{ 200.f, 200.f }, 45.f);
 
-		registry.UpdateSystems(dt);
+    registry.AddComponent<ECS::Render>(tri, ECS::Render::Make(TRIANGLE, sf::Color::Cyan));
 
-		g_window.display(); 
-	}
-	destroy();
-	return 0;
+    while (g_window.isOpen()) {
+        while (const std::optional event =
+            g_window.m_window->pollEvent()) {
+            // ImGui debe recibir todos los eventos de SFML.
+            ImGui::SFML::ProcessEvent(
+                *g_window.m_window,
+                *event
+            );
+
+            if (event->is<sf::Event::Closed>()) {
+                g_window.close();
+            }
+        }
+
+        const sf::Time elapsedTime = deltaClock.restart();
+        const float dt = elapsedTime.asSeconds();
+
+        // Iniciar el frame de ImGui.
+        ImGui::SFML::Update(*g_window.m_window, elapsedTime);
+
+        ImGuiDockNodeFlags dockspaceFlags =
+            ImGuiDockNodeFlags_PassthruCentralNode;
+
+        ImGui::DockSpaceOverViewport(
+            0,
+            ImGui::GetMainViewport(),
+            dockspaceFlags
+        );
+
+        ImGui::ShowDemoWindow(&showDemoWindow);
+
+        // Limpiar la ventana.
+        g_window.clear(sf::Color::Black);
+
+        // Renderizar los elementos de tu ECS.
+        registry.UpdateSystems(dt);
+
+        // Renderizar ImGui después de la escena.
+        ImGui::SFML::Render(*g_window.m_window);
+
+        // Presentar el frame.
+        g_window.display();
+    }
+
+    destroy();
+
 }

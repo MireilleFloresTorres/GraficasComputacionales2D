@@ -16,6 +16,9 @@
 #include <cstddef>
 #include <queue>
 
+#include <imgui.h>
+#include <imgui-SFML.h>
+
 //Third parties
 #include <SFML/Graphics.hpp>
 

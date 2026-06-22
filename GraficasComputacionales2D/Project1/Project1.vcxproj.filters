@@ -28,6 +28,12 @@
     <Filter Include="Header Files\ECS\Systems">
       <UniqueIdentifier>{584fc32f-4e43-439d-b56a-24a5059b6262}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Imgui">
+      <UniqueIdentifier>{19faa909-dbf9-456d-a23a-7b3f5f52c2bc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Imgui">
+      <UniqueIdentifier>{3430e1d5-c5ff-479e-8959-3de7bcb69d91}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\main.cpp">
@@ -38,6 +44,24 @@
     </ClCompile>
     <ClCompile Include="source\Core\CShape.cpp">
       <Filter>Source Files\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ThirdParties\imgui-sfml-3.0\imgui-SFML.cpp">
+      <Filter>Source Files\Imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ThirdParties\imgui-docking\imgui.cpp">
+      <Filter>Source Files\Imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ThirdParties\imgui-docking\imgui_demo.cpp">
+      <Filter>Source Files\Imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ThirdParties\imgui-docking\imgui_draw.cpp">
+      <Filter>Source Files\Imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ThirdParties\imgui-docking\imgui_tables.cpp">
+      <Filter>Source Files\Imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ThirdParties\imgui-docking\imgui_widgets.cpp">
+      <Filter>Source Files\Imgui</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
