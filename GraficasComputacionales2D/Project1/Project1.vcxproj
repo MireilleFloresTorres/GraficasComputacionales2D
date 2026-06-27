@@ -189,6 +189,7 @@
     <ClInclude Include="include\ECS\SparseSet.h" />
     <ClInclude Include="include\ECS\System.h" />
     <ClInclude Include="include\ECS\Systems\RenderSystem.h" />
+    <ClInclude Include="include\ECS\Systems\UISystem.h" />
     <ClInclude Include="include\ECS\Types.h" />
     <ClInclude Include="include\ECS\View.h" />
     <ClInclude Include="include\Prerequisites.h" />
