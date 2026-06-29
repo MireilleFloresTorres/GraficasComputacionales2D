@@ -5,6 +5,7 @@
 #include "ECS/Components/Transform.h"
 #include "ECS/Components/Render.h"
 #include "ECS/System.H"
+#include "ECS/Components/Camera.h"
 
 namespace ECS {
 	class UISystem final : public System {
@@ -77,6 +78,21 @@ namespace ECS {
                                 r.fillColor.b = static_cast<uint8_t>(color[2] * 255.f);
                                 r.fillColor.a = static_cast<uint8_t>(color[3] * 255.f);
                             }
+                        }
+                    }
+
+                    if (auto* cam = registry.TryGetComponent<ECS::Camera>(selectedEntity)) {
+                        if (ImGui::CollapsingHeader("Camera", ImGuiTreeNodeFlags_DefaultOpen)) {
+
+
+                            ImGui::Checkbox("Active", &cam->active); 
+                            ImGui::DragFloat("Zoom", &cam->zoom, 0.01f, 0.05f, 10.f); 
+
+                            if (cam->followTarget == ECS::NULL_ENTITY)
+                                ImGui::Text("Follow target: (ninguno)");
+                            else
+                                ImGui::Text("Follow Target: %allu",
+                                    static_cast<unsigned long long>(cam->followTarget)); 
                         }
                     }
                 }

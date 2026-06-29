@@ -74,6 +74,35 @@ Window::display() {
 	}
 }
 
+void
+Window::handleResize(const sf::Vector2u& size) {
+	if (!m_window) {
+		ERROR("Window", "handleResize", "Window is null"); 
+		return; 
+	}
+
+	const sf::Vector2f fsize(static_cast<float>(size.x),
+		static_cast<float>(size.y)); 
+	
+	m_view.setSize(fsize);
+	m_view.setCenter({ 0.f, 0.f }); 
+	m_window->setView(m_view); 
+}
+
+void Window::applyCameraView(const sf::Vector2f& center, float zoom, float rotationDeg)
+{
+	if (!m_window)
+	{
+		ERROR("Window", "applyCameraView", "Window is null");
+		return;
+	}
+	if (zoom <= 0.f) zoom = 1.f; 
+	m_view.setSize(m_baseViewSize / zoom); 
+	m_view.setCenter(center);
+	m_view.setRotation(sf::degrees(rotationDeg)); 
+	m_window->setView(m_view);
+}
+
 void 
 Window::update() {
 	//almacena el delta time el tiempo de la ulrima vez llmadp
