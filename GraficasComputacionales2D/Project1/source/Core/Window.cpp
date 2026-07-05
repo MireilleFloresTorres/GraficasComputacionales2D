@@ -16,6 +16,10 @@ Window::Window(int width, int height, const std::string& tittle) {
 	//make_unique nunca retorna nullptr, solo verificar que existe
 	if (m_window) {
 		m_window->setFramerateLimit(60);
+		m_baseViewSize = sf::Vector2f(static_cast<float>(width),
+			static_cast<float>(height));
+		m_view = m_window->getDefaultView();
+
 		MESSAGE("Window", "Window", "Window created successfully");
 	}
 }
@@ -83,7 +87,8 @@ Window::handleResize(const sf::Vector2u& size) {
 
 	const sf::Vector2f fsize(static_cast<float>(size.x),
 		static_cast<float>(size.y)); 
-	
+
+	m_baseViewSize = fsize; 
 	m_view.setSize(fsize);
 	m_view.setCenter({ 0.f, 0.f }); 
 	m_window->setView(m_view); 

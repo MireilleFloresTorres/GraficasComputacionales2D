@@ -16,21 +16,18 @@ namespace ECS {
 
 		}
 
-		void OnUpdate(Registry& registry, float /*deltatime*/) override {
-			registry.GetView<Transform, Render>().Each(
-				[this](EntityID/*entity*/, Transform& t, Render r) {
-					if (!r.shape || !r.visible) return;
-
-					//vuelva el estado del transform sobre la foroma smfl
-					r.shape->setPosition(t.position);
-					r.shape->setRotation(sf::degrees(t.rotation));
-					r.shape->setScale(t.scale);
-					r.shape->setFillColor(r.fillColor);
-
-					m_window.draw(*r.shape);
-
-				} );
-		}
+        void OnUpdate(Registry& registry, float /*deltatime*/) override {
+            registry.GetView<Transform, Render>().Each(
+                [this](EntityID /*entity*/, Transform& t, Render& r) {
+                    if (!r.shape || !r.visible) return;
+                    r.shape->setPosition(t.position);
+                    r.shape->setRotation(sf::degrees(t.rotation));
+                    r.shape->setScale(t.scale);
+                    if (!r.texture)
+                        r.shape->setFillColor(r.fillColor);
+                    m_window.draw(*r.shape);
+                });
+        }
 	private:
 			Window& m_window; 
 	};
