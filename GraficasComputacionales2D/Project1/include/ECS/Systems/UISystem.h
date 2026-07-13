@@ -6,12 +6,37 @@
 #include "ECS/Components/Render.h"
 #include "ECS/System.H"
 #include "ECS/Components/Camera.h"
+#include "ECS/Components/Physics.h"
+#include "ECS/Components/SteeringTarget.h"
+
+/**
+     * @class UISystem
+     * @brief Sistema de interfaz de usuario basado en ImGui para el motor.
+     *
+     * UISystem se encarga de dibujar y gestionar los paneles de edición del
+     * editor, incluyendo la lista de entidades y el Inspector. También configura
+     * el docking de ImGui y aplica un tema visual personalizado inspirado
+     * en Unreal Engine.
+     *
+     * Este sistema permite al usuario:
+     * - Seleccionar entidades desde un listado (Outliner).
+     * - Visualizar y editar componentes como Transform, Render, Camera
+     *   y SteeringTarget desde el panel Inspector
+     * - Configurar comportamientos de steering (Seek, Flee, Arrive, Wander,
+     *   Pursuit, Obstacle Avoidance) y su entidad/posición objetivo.
+     *
+     * Hereda de ECS::System y se ejecuta una vez por frame mediante OnUpdate
+     */
 
 namespace ECS {
 	class UISystem final : public System {
 	public: 
 		UISystem() = default; 
 
+        /**
+        * @brief Actualiza y dibuja la interfaz cada frame.
+        * @param registry Registro ECS con las entidades y componentes
+        */
 		void OnUpdate(Registry& registry, float deltatime) override {
             ImGuiDockNodeFlags dockspaceFlags = ImGuiDockNodeFlags_PassthruCentralNode;
             ImGui::DockSpaceOverViewport(0, ImGui::GetMainViewport(), dockspaceFlags);
@@ -19,13 +44,18 @@ namespace ECS {
             DrawDetails(registry);
 
 		}
-
+      
+         ///@brief Inicializa la configuración de ImGui (docking y estilo visual).
         void OnStart(Registry& /*registry*/) override {
             ImGuiIO& io = ImGui::GetIO();
             io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
             setupUnrealStyle();
         }
 
+        /**
+        * @brief Dibuja el panel "Entities" con la lista de entidades vivas
+        * @param registry Registro ECS con las entidades.
+        */
 		void DrawOutliner(Registry& registry) {
             ImGui::Begin("Entities");
             {
@@ -44,6 +74,10 @@ namespace ECS {
             ImGui::End();
 		}
 
+        /**
+         * @brief Dibuja el panel "Inspector" con los componentes de la entidad seleccionada.
+         * @param registry Registro ECS con las entidades y componentes.
+         */
         void DrawDetails(Registry& registry) {
             ImGui::Begin("Inspector");
             {
@@ -83,6 +117,7 @@ namespace ECS {
                         }
                     }
 
+                    // --- Camera ---
                     if (auto* cam = registry.TryGetComponent<ECS::Camera>(selectedEntity)) {
                         if (ImGui::CollapsingHeader("Camera", ImGuiTreeNodeFlags_DefaultOpen)) {
 
@@ -101,10 +136,84 @@ namespace ECS {
                 else {
                     ImGui::Text("No entity selected");
                 }
+
+                // --- Steering ---
+                if (auto* st = registry.TryGetComponent<ECS::SteeringTarget>(selectedEntity)) {
+                    if (ImGui::CollapsingHeader("Steering", ImGuiTreeNodeFlags_DefaultOpen)) {
+                        ImGui::Checkbox("Enabled", &st->enabled);
+                        // Dropdown de comportamiento
+                        const char* behaviors[] = { "Seek", "Flee", "Arrive", "Wander", "Pursuit", "Obstacle Avoidance" };
+                        int current = static_cast<int>(st->behavior);
+                        if (ImGui::Combo("Behavior", &current, behaviors, 6)) {
+                            st->behavior = static_cast<ECS::SteeringBehavior>(current);
+                            if (auto* ph = registry.TryGetComponent<ECS::Physics>(selectedEntity)) {
+                                ph->velocity = { 0.f, 0.f };
+                                ph->acceleration = { 0.f, 0.f };
+                            }
+                        }
+
+                        //Dropdown de entidad objetivo
+                        ImGui::Separator();
+                        ImGui::Text("Target Entity");
+
+                        //Construye lista de entidades disponibles
+                        std::vector<ECS::EntityID> aliveEntities;
+                        std::vector<std::string>   entityLabels;
+                        for (const ECS::EntityID& id : registry.GetAllEntities()) {
+                            if (!registry.IsAlive(id)) continue;
+                            if (id == selectedEntity)  continue; // no se sigue a sí mismo
+                            aliveEntities.push_back(id);
+                            entityLabels.push_back("Entity " + std::to_string(ECS::GetEntityIndex(id)));
+                        }
+
+                        // Opción "ninguno" al inicio
+                        std::vector<const char*> labelPtrs;
+                        labelPtrs.push_back("(Position fija)");
+                        for (auto& lbl : entityLabels)
+                            labelPtrs.push_back(lbl.c_str());
+
+                        // Encuentra índice actual en la lista
+                        int targetIdx = 0; // default = posición fija
+                        if (st->followAnEntity) {
+                            for (int i = 0; i < (int)aliveEntities.size(); ++i) {
+                                if (aliveEntities[i] == st->followEntity) {
+                                    targetIdx = i + 1; // +1 por el "(Position fija)"
+                                    break;
+                                }
+                            }
+                        }
+
+                        if (ImGui::Combo("Target", &targetIdx, labelPtrs.data(), (int)labelPtrs.size())) {
+                            if (targetIdx == 0) {
+                                st->followAnEntity = false;
+                            }
+                            else {
+                                st->followAnEntity = true;
+                                st->followEntity = aliveEntities[targetIdx - 1];
+                            }
+                        }
+
+                        // Si es posición fija, permite editarla
+                        if (!st->followAnEntity)
+                            vec2Control("Target Pos", &st->targetPosition.x, 0.f, 120.f);
+
+                        // Slow radius solo para Arrive
+                        if (st->behavior == ECS::SteeringBehavior::Arrive)
+                            ImGui::DragFloat("Slowing R.", &st->slowRadius, 1.f, 10.f, 500.f);
+
+                        // Physics
+                        if (auto* ph = registry.TryGetComponent<ECS::Physics>(selectedEntity)) {
+                            ImGui::Separator();
+                            ImGui::DragFloat("Max Speed", &ph->maxSpeed, 1.f, 0.f, 1000.f);
+                            ImGui::DragFloat("Max Force", &ph->maxForce, 0.1f, 0.f, 100.f);
+                        }
+                    }
+                }
             }
             ImGui::End();
        }
 
+        /// @brief Aplica un tema visual estilo Unreal Engine (naranja + grises oscuros) a ImGui.
         void
             setupUnrealStyle() {
             ImGuiStyle& style = ImGui::GetStyle();
@@ -199,6 +308,13 @@ namespace ECS {
             c[ImGuiCol_DragDropTarget] = ImVec4(0.95f, 0.50f, 0.00f, 1.00f);
         }
 
+        /**
+         * @brief Dibuja un control de dos componentes (X, Y) con botones de reset, estilo Unreal.
+         * @param label Etiqueta del campo.
+         * @param values Puntero a un arreglo de 2 floats (X, Y) a editar.
+         * @param resetValue Valor asignado al presionar los botones de reset.
+         * @param columnWidth Ancho de la columna de la etiqueta.
+         */
         void
             vec2Control(const std::string& label,
                 float* values,

@@ -110,5 +110,17 @@
     <ClInclude Include="include\ECS\Components\Camera.h">
       <Filter>Header Files\ECS\Components</Filter>
     </ClInclude>
+    <ClInclude Include="include\ECS\Components\Physics.h">
+      <Filter>Header Files\ECS\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="include\ECS\Components\SteeringTarget.h">
+      <Filter>Header Files\ECS\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="include\ECS\Systems\IASystem.h">
+      <Filter>Header Files\ECS\Systems</Filter>
+    </ClInclude>
+    <ClInclude Include="include\ECS\Components\Obstacle.h">
+      <Filter>Header Files\ECS\Components</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

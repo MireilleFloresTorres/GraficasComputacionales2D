@@ -4,10 +4,14 @@
 #include "ECS/Registry.h"
 #include "ECS/Components/Render.h"
 #include "ECS/Components/Transform.h"
-//ECS:: system/rendersystem.h
-//Logica pura: recorre todas las entidades que tengan a la vez
-//transform
 
+/** @brief ECS:: system/rendersystem.h
+*Logica pura: recorre todas las entidades que tengan a la vez
+* los componentes Transform y Render, y sincroniza la forma gráfica
+* (sf::Shape) de cada una con su posición, rotación y escala antes de
+* dibujarla en la ventana. Las entidades sin shape asignado, no visibles,
+* o cuyo Render se omite, no se dibujan
+*/
 namespace ECS {
 	class RenderSystem final : public System {
 	public: 
@@ -16,6 +20,7 @@ namespace ECS {
 
 		}
 
+        ///@brief Actualiza y dibuja todas las entidades con Transform y Render
         void OnUpdate(Registry& registry, float /*deltatime*/) override {
             registry.GetView<Transform, Render>().Each(
                 [this](EntityID /*entity*/, Transform& t, Render& r) {
@@ -29,6 +34,7 @@ namespace ECS {
                 });
         }
 	private:
+        /// @brief Ventana donde se dibujan las entidades.
 			Window& m_window; 
 	};
 }

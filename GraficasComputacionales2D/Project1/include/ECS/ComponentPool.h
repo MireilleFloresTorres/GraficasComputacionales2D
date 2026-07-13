@@ -2,37 +2,37 @@
 #include "Prerequisites.h"
 #include "SparseSet.h"
 
-// ============================================================
-//  ECS :: ComponentPool.h
-//
-//  IComponentPool — interfaz polimórfica sin tipo para que
-//  Registry pueda gestionar pools heterogéneos.
-//
-//  ComponentPool<T> — almacena componentes de tipo T en un
-//  dense array paralelo al de SparseSet.
-//  El Remove usa swap-with-last igual que el SparseSet para
-//  mantener los dos arrays sincronizados.
-// ============================================================
-
+/** ============================================================
+*  ECS :: ComponentPool.h
+*
+*  IComponentPool — interfaz polimórfica sin tipo para que
+*  Registry pueda gestionar pools heterogéneos.
+*
+*  ComponentPool<T> — almacena componentes de tipo T en un
+*  dense array paralelo al de SparseSet.
+*  El Remove usa swap-with-last igual que el SparseSet para
+*  mantener los dos arrays sincronizados.
+    ============================================================
+*/
 namespace
 	ECS {
-	// Interfaz polimórfica 
+	///@brief Interfaz polimórfica 
 	class
 		IComponentPool : public SparseSet {
 	public:
 		virtual
 			~IComponentPool() = default;
 
-		// Elimina el componente de la entidad si existe
+		/// Elimina el componente de la entidad si existe
 		virtual void
 			RemoveEntity(EntityID entity) = 0;
 
-		// Puntero sin tipo al componente (para el Serializer)
+		/// Puntero sin tipo al componente (para el Serializer)
 		virtual void*
 			GetRaw(EntityID entity) noexcept = 0;
 	};
 
-	// Pool tipado 
+	///@brief Pool tipado 
 	template<typename T>
 	class
 		ComponentPool final : public IComponentPool {
@@ -66,10 +66,11 @@ namespace
 			return &m_components[m_sparse[GetEntityIndex(entity)]];
 		}
 
-		//Eliminar (swap-with-last) 
-	// IMPORTANTE: primero sincronizamos m_components y luego
-	// llamamos a SparseSet::Remove para que sincronice m_dense.
-	// Ambos swap usan el mismo denseIdx, así quedan alineados.
+	/**Eliminar(swap - with - last)
+	* IMPORTANTE: primero sincronizamos m_components y luego
+	* llamamos a SparseSet::Remove para que sincronice m_dense.
+	* Ambos swap usan el mismo denseIdx, así quedan alineados.
+	*/ 
 		void
 			Remove(EntityID entity) override {
 			if (!Contains(entity)) return;
@@ -90,7 +91,7 @@ namespace
 		void*
 			GetRaw(EntityID entity) noexcept override { return TryGet(entity); }
 
-		// ── Acceso masivo (útil para el Serializer / sistemas) 
+		///@brief ---Acceso masivo (útil para el Serializer / sistemas) 
 		[[nodiscard]] std::vector<T>&
 			GetComponents() noexcept { return m_components; }
 

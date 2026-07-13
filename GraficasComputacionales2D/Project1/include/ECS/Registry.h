@@ -5,9 +5,16 @@
 #include "ECS/System.h"
 
 namespace ECS {
+    /**
+    * @class Registry
+    * @brief Punto de acceso único para crear/destruir entidades, añadir/consultar componentes,
+    * obtener Views y ejecutar los sistemas del ECS.
+    */
     class
         Registry {
     public:
+        /// @brief Crea una nueva entidad, reutilizando índices libres si existen.
+        /// @return ID de la entidad creada
         EntityID CreateEntity() {
             EntityIndex idx;
             if (!m_freeList.empty()) {
@@ -25,6 +32,8 @@ namespace ECS {
             return id;
         }
 
+        /// @brief Destruye una entidad: elimina todos sus componentes e invalida su ID
+        /// @param entity Entidad a destruir.
         void
             DestroyEntity(EntityID entity) {
             assert(IsAlive(entity) && "DestroyEntity: entidad inválida o ya destruida");
@@ -40,12 +49,15 @@ namespace ECS {
             m_freeList.push(idx);
         }
 
+        /// @brief Indica si una entidad sigue viva (no destruida).
+        /// @param entity Entidad a verificar.
         [[nodiscard]] bool
             IsAlive(EntityID entity) const noexcept {
             const EntityIndex idx = GetEntityIndex(entity);
             return idx < m_entities.size() && m_entities[idx] == entity;
         }
 
+        /// @brief Número de entidades vivas actualmente.
         [[nodiscard]] std::size_t
             EntityCount() const noexcept {
             return m_entities.size() - m_freeList.size();
@@ -58,24 +70,24 @@ namespace ECS {
             return m_entities;
         }
 
-        //  Componentes
-
-        // Añade un componente a la entidad y devuelve su referencia.
-        // Acepta argumentos de construcción directos (perfect-forward).
-        template<typename T, typename... Args> T&
+        /**@brief Añade un componente T a la entidad, construido in - place con los argumentos dados.
+        * @tparam T Tipo de componente.
+        * @param entity Entidad destino.
+        * @param args Argumentos del constructor de T
+        */        template<typename T, typename... Args> T&
             AddComponent(EntityID entity, Args&&... args) {
             assert(IsAlive(entity) && "AddComponent: entidad inválida");
             return GetOrCreatePool<T>()->Add(entity, std::forward<Args>(args)...);
         }
 
-        // Elimina el componente T de la entidad (no-op si no lo tiene).
+        /// @brief Elimina el componente T de la entidad (no-op si no lo tiene).
         template<typename T> void
             RemoveComponent(EntityID entity) {
             if (auto* pool = GetPool<T>())
                 pool->Remove(entity);
         }
 
-        // Reemplaza el componente (o lo añade si no existía).
+        /// @brief  el componente (o lo añade si no existía).
         template<typename T>
         T& SetComponent(EntityID entity, T value) {
             assert(IsAlive(entity) && "SetComponent: entidad inválida");
@@ -87,13 +99,14 @@ namespace ECS {
             return pool->Add(entity, std::move(value));
         }
 
+        /// @brief Indica si la entidad posee un componente de tipo T.
         template<typename T>
         [[nodiscard]] bool HasComponent(EntityID entity) const noexcept {
             const auto* pool = GetPoolConst<T>();
             return pool && pool->Contains(entity);
         }
 
-        // Acceso garantizado (assert si no existe).
+        /// @brief Obtiene el componente T de la entidad (acceso garantizado, assert si no existe).
         template<typename T>
         [[nodiscard]] T& GetComponent(EntityID entity) {
             assert(IsAlive(entity));
@@ -102,6 +115,7 @@ namespace ECS {
             return pool->Get(entity);
         }
 
+        /// @brief Versión const de GetComponent.
         template<typename T>
         [[nodiscard]] const T& GetComponent(EntityID entity) const
         {
@@ -111,7 +125,7 @@ namespace ECS {
             return pool->Get(entity);
         }
 
-        // Acceso seguro: devuelve nullptr si la entidad no tiene el componente.
+        ///@brief Acceso seguro: devuelve nullptr si la entidad no tiene el componente.
         template<typename T>
         [[nodiscard]] T* TryGetComponent(EntityID entity) noexcept
         {
@@ -138,6 +152,8 @@ namespace ECS {
             return ref;
         }
 
+        /// @brief Ejecuta OnUpdate en todos los sistemas habilitados
+        /// @param deltaTime Delta time del frame actual
         void UpdateSystems(float deltaTime)
         {
             for (auto& system : m_systems)
@@ -145,6 +161,7 @@ namespace ECS {
                     system->OnUpdate(*this, deltaTime);
         }
 
+        /// @brief Llama a OnDestroy en todos los sistemas y los elimina del registry
         void RemoveAllSystems()
         {
             for (auto& system : m_systems)
@@ -153,7 +170,7 @@ namespace ECS {
         }
 
         //  Utilidades
-        // Destruye todo: entidades, componentes y sistemas.
+        ///@brief Destruye todo: entidades, componentes y sistemas.
         void
             Clear() {
             RemoveAllSystems();
@@ -164,12 +181,12 @@ namespace ECS {
             while (!m_freeList.empty()) m_freeList.pop();
         }
 
-        // Acceso a pools sin tipo (para el Serializer)
+        /// Acceso a pools sin tipo (para el Serializer)
         [[nodiscard]] const std::unordered_map<ComponentTypeID, std::unique_ptr<IComponentPool>>&
             GetPools() const noexcept { return m_componentPools; }
 
     private:
-        // Helpers privados 
+        /// @brief Helpers privados 
         template<typename T>
         ComponentPool<T>* GetOrCreatePool() {
             const ComponentTypeID typeID = GetComponentTypeID<T>();
@@ -183,6 +200,7 @@ namespace ECS {
             return static_cast<ComponentPool<T>*>(it->second.get());
         }
 
+        /// @brief Obtiene el pool de T (mutable), o nullptr si no existe
         template<typename T>
         ComponentPool<T>* GetPool() noexcept {
             const ComponentTypeID typeID = GetComponentTypeID<T>();
@@ -192,6 +210,7 @@ namespace ECS {
                 : nullptr;
         }
 
+        /// @brief Obtiene el pool de T (const), o nullptr si no existe
         template<typename T>
         const ComponentPool<T>* GetPoolConst() const noexcept {
             const ComponentTypeID typeID = GetComponentTypeID<T>();
@@ -203,9 +222,10 @@ namespace ECS {
 
     private:
         // Entidades 
-        std::vector<EntityID>      m_entities;
-        std::vector<EntityVersion> m_versions;
-        std::queue<EntityIndex>    m_freeList;
+        std::vector<EntityID>      m_entities; ///< IDs por índice, NULL_ENTITY en huecos libres.
+        std::vector<EntityVersion> m_versions; ///< Versión actual de cada índice, para invalidar IDs viejos.
+        std::queue<EntityIndex>    m_freeList; ///< Índices libres reutilizables al crear entidades
+
 
         //  Componentes 
         std::unordered_map<ComponentTypeID, std::unique_ptr<IComponentPool>> m_componentPools;
