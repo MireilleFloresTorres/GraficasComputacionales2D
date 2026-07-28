@@ -28,14 +28,65 @@ Window g_window(Window(800, 600, "Labrid Engine")); ///< Ventana principal de la
 ECS::Registry registry; // Registro ECS global
 
 
-/// @brief Libera recursos de ImGui/SFML antes de cerrar la aplicación.
+/** @brief Libera recursos de ImGui / SFML antes de cerrar la aplicación.*/
 void destroy()
 {
     ImGui::SFML::Shutdown();
 }
 
-/// @brief Inicializa ImGui, registra sistemas ECS, crea entidades de prueba y ejecuta el game loop principal.
-/// @return 0 si termina correctamente, -1 si falla la inicialización de ImGui
+#include <array>
+#include <algorithm>
+
+void DrawMSAASettings() {
+    ImGui::Begin("MSAA Settings");
+
+    const unsigned int currentLevel =
+        g_window.m_window->getSettings().antiAliasingLevel;
+
+    ImGui::Text("Current MSAA Level: %ux", currentLevel);
+    ImGui::Separator();
+
+    static constexpr std::array<unsigned int, 4> msaaLevels{ 0, 2, 4, 8 };
+    static constexpr const char* msaaLabels[]{
+        "Disabled", "2x MSAA", "4x MSAA", "8x MSAA"
+    };
+
+    static int selectedIndex = [&]()
+        {
+            const auto iterator = std::find(
+                msaaLevels.begin(), msaaLevels.end(), currentLevel);
+            if (iterator == msaaLevels.end())
+                return 0;
+            return static_cast<int>(std::distance(msaaLevels.begin(), iterator));
+        }();
+
+    ImGui::SetNextItemWidth(150.0f);
+    ImGui::Combo("MSAA Level", &selectedIndex, msaaLabels,
+        static_cast<int>(std::size(msaaLabels)));
+
+    const unsigned int selectedLevel =
+        msaaLevels[static_cast<std::size_t>(selectedIndex)];
+    const bool hasChanges = selectedLevel != currentLevel;
+
+    if (!hasChanges) ImGui::BeginDisabled();
+    if (ImGui::Button("Apply")) {
+        g_window.setMSAALevel(selectedLevel);
+    }
+    if (!hasChanges) ImGui::EndDisabled();
+
+    ImGui::SameLine();
+    if (hasChanges)
+        ImGui::Text("Pending: %ux", selectedLevel);
+    else
+        ImGui::TextDisabled("No pending changes");
+
+    ImGui::Separator();
+    ImGui::TextWrapped("Changing MSAA recreates the rendering window.");
+    ImGui::End();
+}
+
+/**brief Inicializa ImGui, registra sistemas ECS, crea entidades de prueba y ejecuta el game loop principal.
+ *@return 0 si termina correctamente, -1 si falla la inicialización de ImGui*/
 int main()
 {
     // m_window es un puntero a sf::RenderWindow.
@@ -108,6 +159,7 @@ int main()
         // Limpiar la ventana.
         g_window.clear(sf::Color::Black);
 
+        DrawMSAASettings();
         // Renderizar los elementos de tu ECS.
         registry.UpdateSystems(dt);
 

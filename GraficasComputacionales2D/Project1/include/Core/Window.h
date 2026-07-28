@@ -60,9 +60,19 @@ public:
 
 	/// @brief puntero inteligente de la ventana real
 	std::unique_ptr<sf::RenderWindow> m_window = nullptr; 
+
+
 private: 
 	sf::View m_view;
 	sf::Time deltaTime;
 	sf::Clock clock;
 	sf::Vector2f m_baseViewSize;
+
+private:
+	int m_width{ 0 };
+	int m_height{ 0 };
+	std::string m_title;
+
+public:
+	void setMSAALevel(unsigned int level);
 };	

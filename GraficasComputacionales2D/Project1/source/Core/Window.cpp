@@ -7,6 +7,11 @@
  * @param tittle Título de la ventana.
  */
 Window::Window(int width, int height, const std::string& tittle) {
+
+	m_width = width;
+	m_height = height;
+	m_title = tittle;
+
 	// Configuración del contexto OpenGL
 	sf::ContextSettings settings;
 	settings.depthBits = 24;
@@ -137,4 +142,36 @@ Window::render() {
 void
 Window::destroy() {
 	m_window.reset(); 
+}
+
+/**
+ * @brief Recrea la ventana con un nuevo nivel de MSAA.
+ * @param level Nivel de antialiasing deseado (0, 2, 4, 8).
+ */
+void
+Window::setMSAALevel(unsigned int level) {
+	if (!m_window) {
+		ERROR("Window", "setMSAALevel", "Window is null");
+		return;
+	}
+
+	sf::ContextSettings settings;
+	settings.depthBits = 24;
+	settings.stencilBits = 8;
+	settings.antiAliasingLevel = level;
+
+	m_window->create(
+		sf::VideoMode({ static_cast<unsigned int>(m_width),
+						static_cast<unsigned int>(m_height) }),
+		m_title,
+		sf::Style::Default,
+		sf::State::Windowed,
+		settings
+	);
+
+	m_window->setVerticalSyncEnabled(true);
+	handleResize(m_window->getSize());
+
+	const sf::ContextSettings actualSettings = m_window->getSettings();
+	MESSAGE("Window", "setMSAALevel", "MSAA disponible: " + std::to_string(actualSettings.antiAliasingLevel) + "x");
 }

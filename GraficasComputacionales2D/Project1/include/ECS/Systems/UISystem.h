@@ -364,9 +364,9 @@ namespace ECS {
             ImGui::Columns(1);
             ImGui::PopID();
         }
-
     private: 
     //Enttidad seleccionada
         ECS::EntityID selectedEntity = ECS::NULL_ENTITY; 
 	};
+
 }
