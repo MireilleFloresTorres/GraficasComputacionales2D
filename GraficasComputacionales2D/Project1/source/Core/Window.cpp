@@ -7,19 +7,31 @@
  * @param tittle Título de la ventana.
  */
 Window::Window(int width, int height, const std::string& tittle) {
+	// Configuración del contexto OpenGL
+	sf::ContextSettings settings;
+	settings.depthBits = 24;
+	settings.stencilBits = 8;
+	settings.antiAliasingLevel = 4; // MSAA x4
+
 	m_window = std::make_unique<sf::RenderWindow>(
 		sf::VideoMode({ static_cast<unsigned int>(width),
 						static_cast<unsigned int>(height) }),
 		tittle,
-		sf::Style::Default);
+		sf::Style::Default,
+		sf::State::Windowed,
+		settings);
 
-	//make_unique nunca retorna nullptr, solo verificar que existe
 	if (m_window) {
-		m_window->setFramerateLimit(60);
+		m_window->setVerticalSyncEnabled(true);
+
+		handleResize(m_window->getSize());
+
+		const sf::ContextSettings actualSettings = m_window->getSettings();
+		MESSAGE("Window", "Window", "MSAA disponible: " + std::to_string(actualSettings.antiAliasingLevel) + "x");
+
 		m_baseViewSize = sf::Vector2f(static_cast<float>(width),
 			static_cast<float>(height));
 		m_view = m_window->getDefaultView();
-
 		MESSAGE("Window", "Window", "Window created successfully");
 	}
 }
