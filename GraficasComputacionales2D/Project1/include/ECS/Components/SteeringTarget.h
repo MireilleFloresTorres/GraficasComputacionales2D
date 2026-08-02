@@ -2,30 +2,22 @@
 #include "Prerequisites.h"
 #include "ECS/Types.h"
 namespace ECS {
-    /**
-    * @enum SteeringBehavior
-    * @brief Tipos de comportamiento de steering disponibles.
-    */
-    enum class SteeringBehavior { Seek = 0, Flee = 1, Arrive = 2, Wander = 3, Pursuit = 4, ObstacleAvoidance = 5 };
-
-    /**
-    * @struct SteeringTarget
-    * @brief Componente que configura el comportamiento de steering de una entidad.
-    */
+    enum class SteeringBehavior { Seek = 0, Flee = 1, Arrive = 2, Wander = 3, Pursuit = 4, ObstacleAvoidance = 5, PathFollowing = 6 };
     struct SteeringTarget {
-        sf::Vector2f     targetPosition{ 0.f, 0.f }; ///< Posición objetivo fija (si no se sigue a una entidad)
-        SteeringBehavior behavior{ SteeringBehavior::Seek }; ///< Comportamiento de steering activo
-        float            slowRadius{ 100.f };  ///< Radio de desaceleración, usado en Arrive
-        EntityID         followEntity{ 0 }; ///< Entidad objetivo a seguir (si followAnEntity es true)
-        bool             followAnEntity{ false }; ///< Indica si se sigue una entidad en vez de una posición fija
-        bool             enabled{ false }; ///< Habilita o deshabilita el steering
-
+        sf::Vector2f     targetPosition{ 0.f, 0.f };
+        SteeringBehavior behavior{ SteeringBehavior::Seek };
+        float            slowRadius{ 100.f };
+        EntityID         followEntity{ 0 };
+        bool             followAnEntity{ false };
+        bool             enabled{ false };
 
         // Wander
         float wanderAngle{ 0.f };
         float wanderRadius{ 50.f };
         float wanderDistance{ 100.f };
         float wanderJitter{ 30.f };
+        float wanderBoundaryRadius{ 150.f };   // qué tan lejos de targetPosition puede alejarse
+        float wanderExclusionRadius{ 40.f };   // zona prohibida alrededor de targetPosition
 
         // Pursuit
         float predictionTime{ 0.5f };

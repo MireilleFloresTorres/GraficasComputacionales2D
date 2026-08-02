@@ -34,6 +34,15 @@
     <Filter Include="Source Files\Imgui">
       <UniqueIdentifier>{3430e1d5-c5ff-479e-8959-3de7bcb69d91}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\ECS">
+      <UniqueIdentifier>{3bef5146-4759-4cdb-82cd-49acd0df9b12}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\ECS\Components">
+      <UniqueIdentifier>{a6c63534-8764-4c21-809a-06092acafb2f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\ECS\Systems">
+      <UniqueIdentifier>{be0ccdfa-b3eb-4a59-92e4-602a7b907c22}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\main.cpp">
@@ -62,6 +71,18 @@
     </ClCompile>
     <ClCompile Include="..\ThirdParties\imgui-docking\imgui_widgets.cpp">
       <Filter>Source Files\Imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="source\ECS\Components\Path.cpp">
+      <Filter>Source Files\ECS\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="source\ECS\Systems\IASystem.cpp">
+      <Filter>Source Files\ECS\Systems</Filter>
+    </ClCompile>
+    <ClCompile Include="source\ECS\Systems\RenderSystem.cpp">
+      <Filter>Source Files\ECS\Systems</Filter>
+    </ClCompile>
+    <ClCompile Include="source\ECS\Systems\Render.cpp">
+      <Filter>Source Files\ECS\Systems</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -95,9 +116,6 @@
     <ClInclude Include="include\ECS\Components\Transform.h">
       <Filter>Header Files\ECS\Components</Filter>
     </ClInclude>
-    <ClInclude Include="include\ECS\Components\Render.h">
-      <Filter>Header Files\ECS\Components</Filter>
-    </ClInclude>
     <ClInclude Include="include\ECS\Systems\RenderSystem.h">
       <Filter>Header Files\ECS\Systems</Filter>
     </ClInclude>
@@ -121,6 +139,12 @@
     </ClInclude>
     <ClInclude Include="include\ECS\Components\Obstacle.h">
       <Filter>Header Files\ECS\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="include\ECS\Components\Path.h">
+      <Filter>Header Files\ECS\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="include\ECS\Components\Render.h">
+      <Filter>Header Files\ECS\Systems</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

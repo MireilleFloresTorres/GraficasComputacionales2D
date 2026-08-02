@@ -15,6 +15,8 @@
 #include <tuple>
 #include <cstddef>
 #include <queue>
+#include <cmath>
+#include <cstdlib>
 
 #include <imgui.h>
 #include <imgui-SFML.h>

@@ -177,6 +177,10 @@
     <ClCompile Include="..\ThirdParties\imgui-sfml-3.0\imgui-SFML.cpp" />
     <ClCompile Include="source\Core\CShape.cpp" />
     <ClCompile Include="source\Core\Window.cpp" />
+    <ClCompile Include="source\ECS\Components\Path.cpp" />
+    <ClCompile Include="source\ECS\Systems\IASystem.cpp" />
+    <ClCompile Include="source\ECS\Systems\Render.cpp" />
+    <ClCompile Include="source\ECS\Systems\RenderSystem.cpp" />
     <ClCompile Include="Source\main.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -185,6 +189,7 @@
     <ClInclude Include="include\ECS\ComponentPool.h" />
     <ClInclude Include="include\ECS\Components\Camera.h" />
     <ClInclude Include="include\ECS\Components\Obstacle.h" />
+    <ClInclude Include="include\ECS\Components\Path.h" />
     <ClInclude Include="include\ECS\Components\Physics.h" />
     <ClInclude Include="include\ECS\Components\Render.h" />
     <ClInclude Include="include\ECS\Components\SteeringTarget.h" />
