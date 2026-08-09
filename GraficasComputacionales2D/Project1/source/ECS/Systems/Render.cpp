@@ -2,6 +2,14 @@
 
 namespace ECS {
 
+    /**
+     * @brief Crea y configura un componente Render con la forma, color y textura indicados
+     * @details Instancia la shape de SFML correspondiente al tipo
+     * @param type Tipo de figura a crear (CIRCLE, RECTANGLE o TRIANGLE).
+     * @param color Color de relleno a aplicar a la figura
+     * @param texturePath Ruta del archivo de textura a cargar; si está vacío, no se asigna textura.
+     * @return Instancia de Render configurada con la shape, color y textura resultantes.
+     */
     Render Render::Make(ShapeType type, const sf::Color& color, const std::string& texturePath) {
         std::cerr << "DEBUG texturePath recibido: [" << texturePath << "]\n";
         Render render;

@@ -2,6 +2,11 @@
 
 namespace ECS {
 
+    /**
+     * @brief Dibuja todos los elementos visuales del frame en orden de capas
+     * @details Primero dibuja los sprites de fondo y luego las entidades con Transform
+     *          y Render 
+     */
     void RenderSystem::OnUpdate(Registry& registry, float /*deltatime*/) {
         DrawSprites(registry); // fondo primero
 
@@ -27,6 +32,12 @@ namespace ECS {
             });
     }
 
+    /**
+    * @brief Dibuja una representación visual de los paths 
+    * @details Para cada entidad con Path, genera una franja que
+    *          representa el ancho de la pista  a ambos lados de cada punto, y una línea roja
+    *          (LineStrip) que marca el centro del recorrido.
+    */
     void RenderSystem::DrawPaths(Registry& registry) {
         registry.GetView<Path>().Each(
             [this](EntityID /*entity*/, Path& path) {

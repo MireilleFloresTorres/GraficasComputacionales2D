@@ -3,6 +3,14 @@
 
 namespace ECS {
 
+    /**
+     * @brief Actualiza el comportamiento de dirección (steering) de todas las entidades con SteeringTarget.
+     * @details Calcula la fuerza deseada según el comportamiento asignado (Seek, Flee, Arrive, Wander,
+     *          Pursuit, ObstacleAvoidance o PathFollowing), la aplica como aceleración limitada por maxForce,
+     *          integra velocidad y posición, y orienta la rotación hacia la dirección del movimiento.
+     * @param registry Registro ECS con las entidades y componentes.
+     * @param dt Delta time del frame actual.
+     */
     void IASystem::OnUpdate(Registry& registry, float dt) {
         registry.GetView<Transform, Physics, SteeringTarget>().Each(
             [&registry, dt](EntityID id, Transform& t, Physics& ph, SteeringTarget& st) {
@@ -69,12 +77,20 @@ namespace ECS {
         UpdateLapCounters(registry);
     }
 
+    /**
+    * @brief Calcula la fuerza de dirección para acercarse directamente al objetivo.
+    * @return Vector de velocidad deseada hacia el target, con magnitud maxSpeed.
+    */
     sf::Vector2f IASystem::SeekForce(const sf::Vector2f& pos, const Physics& ph, const SteeringTarget& st) {
         sf::Vector2f diff = st.targetPosition - pos;
         if (length(diff) == 0.f) return { 0.f, 0.f };
         return normalize(diff) * ph.maxSpeed;
     }
 
+    /**
+     * @brief Calcula la fuerza de dirección para alejarse del objetivo.
+     * @return Vector de velocidad deseada en dirección opuesta al target, con magnitud maxSpeed.
+     */
     sf::Vector2f IASystem::FleeForce(const sf::Vector2f& pos, const Physics& ph, const SteeringTarget& st) {
         sf::Vector2f diff = st.targetPosition - pos;
         float distance = length(diff);
@@ -82,6 +98,10 @@ namespace ECS {
         return normalize(-diff) * ph.maxSpeed;
     }
 
+    /**
+     * @brief Calcula la fuerza de dirección para llegar al objetivo desacelerando dentro de slowRadius.
+     * @return Vector de velocidad deseada hacia el target, escalado según la distancia restante.
+     */
     sf::Vector2f IASystem::ArriveForce(const sf::Vector2f& pos, const Physics& ph, const SteeringTarget& st) {
         sf::Vector2f diff = st.targetPosition - pos;
         float distance = length(diff);
@@ -92,6 +112,12 @@ namespace ECS {
         return normalize(diff) * speed;
     }
 
+    /**
+    * @brief Calcula la fuerza de dirección para un movimiento errático (wander) alrededor del target.
+    * @details Usa un círculo proyectado frente al agente con un punto que varía aleatoriamente (jitter).
+    *          Incluye una zona de exclusión cerca del target y un límite de radio para evitar que el
+    *          agente se aleje demasiado.
+    */
     sf::Vector2f IASystem::WanderForce(const sf::Vector2f& pos, const Physics& ph, SteeringTarget& st, float dt) {
         st.wanderAngle += randomJitter() * st.wanderJitter * dt;
 
@@ -145,6 +171,12 @@ namespace ECS {
         return avoidForce;
     }
 
+    /**
+     * @brief Calcula una fuerza de repulsión acumulada respecto a obstáculos cercanos.
+     * @details Recorre todas las entidades con componente Obstacle (excepto self) y suma una fuerza
+     *          inversamente proporcional a la distancia dentro de obstacleDetectionRadius.
+     * @param self Entidad que se está evaluando, excluida de la búsqueda.
+     */
     sf::Vector2f IASystem::PathFollowingForce(Registry& registry, const Transform& t,
         const Physics& ph, const SteeringTarget& st) {
         if (!registry.IsAlive(st.followEntity)) return { 0.f, 0.f };
