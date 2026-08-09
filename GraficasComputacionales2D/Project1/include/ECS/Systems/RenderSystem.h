@@ -5,6 +5,7 @@
 #include "ECS/Components/Render.h"
 #include "ECS/Components/Transform.h"
 #include "ECS/Components/Path.h"
+#include "ECS/Components/Sprite.h"
 
 namespace ECS {
     class RenderSystem final : public System {
@@ -16,5 +17,6 @@ namespace ECS {
     private:
         void DrawPaths(Registry& registry);
         Window& m_window;
+        void DrawSprites(Registry& registry);
     };
 }

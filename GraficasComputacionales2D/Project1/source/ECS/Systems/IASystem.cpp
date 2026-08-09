@@ -34,7 +34,7 @@ namespace ECS {
                     desired = PursuitForce(t.position, ph, st, targetVelocity);
                     break;
                 case SteeringBehavior::ObstacleAvoidance:
-                    desired = SeekForce(t.position, ph, st); // base: sigue el target, evasión se suma abajo
+                    desired = SeekForce(t.position, ph, st); // base que igue el target, evasión se suma abajo
                     break;
                 case SteeringBehavior::PathFollowing:
                     desired = PathFollowingForce(registry, t, ph, st);
@@ -54,7 +54,19 @@ namespace ECS {
                 ph.velocity = limit(ph.velocity, ph.maxSpeed);
                 t.position += ph.velocity * dt;
                 ph.acceleration = { 0.f, 0.f };
+
+                if (length(ph.velocity) > 0.1f) {
+                    float targetAngleRad = std::atan2(ph.velocity.y, ph.velocity.x);
+                    float targetAngleDeg = targetAngleRad * 180.f / 3.14159265f + 90.f;
+
+                    // uavemente hacia el ángulo objetivo evitando slatos bruscos
+                    float diff = targetAngleDeg - t.rotation;
+                    while (diff > 180.f) diff -= 360.f;
+                    while (diff < -180.f) diff += 360.f;
+                    t.rotation += diff * std::min(1.f, dt * 10.f);
+                }
             });
+        UpdateLapCounters(registry);
     }
 
     sf::Vector2f IASystem::SeekForce(const sf::Vector2f& pos, const Physics& ph, const SteeringTarget& st) {
@@ -139,8 +151,8 @@ namespace ECS {
         auto* path = registry.TryGetComponent<Path>(st.followEntity);
         if (!path || path->points.size() < 2) return { 0.f, 0.f };
 
-        sf::Vector2f dir = length(ph.velocity) > 0.f ? normalize(ph.velocity) : sf::Vector2f{ 1.f, 0.f };
-        sf::Vector2f future = t.position + dir * 25.f;
+        sf::Vector2f dir = length(ph.velocity) > 0.f ? normalize(ph.velocity) : sf::Vector2f{ 0.f, 0.f };
+        sf::Vector2f future = t.position + dir * 10.f;
 
         float worldRecord = std::numeric_limits<float>::max();
         sf::Vector2f target{ 0.f, 0.f };
@@ -198,6 +210,42 @@ namespace ECS {
     }
     sf::Vector2f IASystem::limit(sf::Vector2f v, float max) {
         return length(v) > max ? normalize(v) * max : v;
+    }
+
+    void IASystem::UpdateLapCounters(Registry& registry) {
+        registry.GetView<Transform, LapCounter>().Each(
+            [&registry](EntityID, Transform& t, LapCounter& lap) {
+                if (!registry.IsAlive(lap.trackEntity)) return;
+                auto* path = registry.TryGetComponent<Path>(lap.trackEntity);
+                if (!path || path->points.size() < 2) return;
+
+                const auto& pts = path->points;
+                const std::size_t n = pts.size();
+
+                std::size_t closestIndex = 0;
+                float closestDist = std::numeric_limits<float>::max();
+                for (std::size_t i = 0; i < n; ++i) {
+                    sf::Vector2f diff = t.position - pts[i];
+                    float dist = diff.x * diff.x + diff.y * diff.y;
+                    if (dist < closestDist) {
+                        closestDist = dist;
+                        closestIndex = i;
+                    }
+                }
+
+                if (!lap.initialized) {
+                    lap.lastIndex = closestIndex;
+                    lap.initialized = true;
+                    return;
+                }
+
+                const std::size_t threshold = n / 4;
+                if (lap.lastIndex > n - threshold && closestIndex < threshold) {
+                    lap.laps++;
+                }
+
+                lap.lastIndex = closestIndex;
+            });
     }
 
 }

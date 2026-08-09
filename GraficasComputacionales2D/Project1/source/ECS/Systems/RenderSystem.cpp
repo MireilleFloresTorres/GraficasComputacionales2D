@@ -3,6 +3,8 @@
 namespace ECS {
 
     void RenderSystem::OnUpdate(Registry& registry, float /*deltatime*/) {
+        DrawSprites(registry); // fondo primero
+
         registry.GetView<Transform, Render>().Each(
             [this](EntityID /*entity*/, Transform& t, Render& r) {
                 if (!r.shape || !r.visible) return;
@@ -14,7 +16,15 @@ namespace ECS {
                 m_window.draw(*r.shape);
             });
 
-        DrawPaths(registry);
+        //DrawPaths(registry);// el sprite como visual de la pista
+    }
+
+    void RenderSystem::DrawSprites(Registry& registry) {
+        registry.GetView<Sprite>().Each(
+            [this](EntityID /*entity*/, Sprite& s) {
+                if (!s.sprite) return;
+                m_window.draw(*s.sprite);
+            });
     }
 
     void RenderSystem::DrawPaths(Registry& registry) {
@@ -36,9 +46,9 @@ namespace ECS {
 
                     sf::Vertex vTop, vBottom;
                     vTop.position = p0 + normal * path.radius;
-                    vTop.color = sf::Color(100, 100, 100);
+                    vTop.color = sf::Color(100, 100, 100, 120); // semi-transparente para no tapar el sprite
                     vBottom.position = p0 - normal * path.radius;
-                    vBottom.color = sf::Color(100, 100, 100);
+                    vBottom.color = sf::Color(100, 100, 100, 120);
 
                     road.append(vTop);
                     road.append(vBottom);
@@ -49,7 +59,7 @@ namespace ECS {
                 for (std::size_t i = 0; i <= n; ++i) {
                     sf::Vertex v;
                     v.position = path.points[i % n];
-                    v.color = sf::Color::White;
+                    v.color = sf::Color::Red; // rojo brillante para verlo fácil sobre el sprite
                     centerLine.append(v);
                 }
                 m_window.draw(centerLine);

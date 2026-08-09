@@ -12,6 +12,9 @@
 #include "ECS/Components/SteeringTarget.h"
 #include "ECS/Systems/IASystem.h"
 #include "ECS/Components/Obstacle.h"
+#include "ECS/Components/Path.h"
+#include "ECS/Components/Sprite.h"
+#include "ECS/Components/LapCounter.h"
 
 /**
  * @brief Inicializa ImGui, registra sistemas ECS, crea entidades de prueba y ejecuta el game loop principal.
@@ -85,6 +88,15 @@ void DrawMSAASettings() {
     ImGui::End();
 }
 
+void DrawLapCounters() {
+    ImGui::Begin("Vueltas");
+    registry.GetView<ECS::LapCounter, ECS::Render>().Each(
+        [](ECS::EntityID id, ECS::LapCounter& lap, ECS::Render& r) {
+            ImGui::Text("Entidad %llu: %d vueltas", static_cast<unsigned long long>(id), lap.laps);
+        });
+    ImGui::End();
+}
+
 /**brief Inicializa ImGui, registra sistemas ECS, crea entidades de prueba y ejecuta el game loop principal.
  *@return 0 si termina correctamente, -1 si falla la inicialización de ImGui*/
 int main()
@@ -100,40 +112,87 @@ int main()
     registry.AddSystem<ECS::RenderSystem>(g_window);
     registry.AddSystem<ECS::UISystem>();
     sf::Clock deltaClock;
+
+    // Crea entidades 
+    ECS::EntityID trackSprite = registry.CreateEntity();
+    registry.AddComponent<ECS::Sprite>(trackSprite, ECS::Sprite::Make("Textures/RaceTrack.jpeg", sf::Vector2f{ 32.f, 116.f }));
+
+    // Pista
+    ECS::EntityID track = registry.CreateEntity();
+    auto& trackPath = registry.AddComponent<ECS::Path>(track);
+
+    trackPath.segmentsPerCurve = 20;
+    trackPath.controlPoints = {
+     { 216.f, 136.f }, { 584.f, 136.f }, { 700.f, 184.f }, { 748.f, 300.f },
+     { 700.f, 416.f }, { 584.f, 464.f }, { 216.f, 464.f }, { 100.f, 416.f },
+     { 52.f,  300.f }, { 100.f, 184.f }
+    };
+    trackPath.radius = 20.f; 
+    trackPath.GenerateSmoothPoints();
     
-    // El steering se asigna desde el Inspector
+    /** El steering se asigna desde el Inspector
     ECS::EntityID circle = registry.CreateEntity();
     registry.AddComponent<ECS::Transform>(circle, sf::Vector2f{ 400.f, 300.f });
     registry.AddComponent<ECS::Render>(circle, ECS::Render::Make(CIRCLE, sf::Color::White, "Textures/ColorChecker.png"));
     registry.AddComponent<ECS::Physics>(circle);
-    registry.AddComponent<ECS::SteeringTarget>(circle); // vacío, se configura en UI
+    registry.AddComponent<ECS::SteeringTarget>(circle); // vacío, se configura en UI*/
 
-    // Triángulo — igual
+    // Triángulo 1 — sigue la pista (PathFollowing)
     ECS::EntityID tri = registry.CreateEntity();
-    registry.AddComponent<ECS::Transform>(tri, sf::Vector2f{ 200.f, 200.f });
+    auto& triTransform = registry.AddComponent<ECS::Transform>(tri, sf::Vector2f{ 216.f, 136.f });
+    triTransform.scale = { 0.4f, 0.4f };
     registry.AddComponent<ECS::Render>(tri, ECS::Render::Make(TRIANGLE, sf::Color::Yellow));
     registry.AddComponent<ECS::Physics>(tri);
     auto& triSteering = registry.AddComponent<ECS::SteeringTarget>(tri);
-    triSteering.behavior = ECS::SteeringBehavior::Seek;
-    triSteering.followEntity = circle;
-    triSteering.followAnEntity = true;
+    triSteering.behavior = ECS::SteeringBehavior::PathFollowing;
+    triSteering.followEntity = track;
     triSteering.enabled = true;
+    auto& triLap = registry.AddComponent<ECS::LapCounter>(tri);
+    triLap.trackEntity = track;
+    if (auto* triPh = registry.TryGetComponent<ECS::Physics>(tri)) {
+        triPh->maxSpeed = 80.f;
+        triPh->maxForce = 40.f; // más fuerza de giro relativa a su velocidad
+    }
 
-    // Obstáculo — solo Transform y Render, con tag Obstacle
+    // Triángulo 2 — persigue al Triángulo 1 (Pursuit)
+    ECS::EntityID chaser = registry.CreateEntity();
+    auto& chaserTransform = registry.AddComponent<ECS::Transform>(chaser, sf::Vector2f{ 216.f, 136.f }); // igual que tri
+    chaserTransform.scale = { 0.4f, 0.4f };
+    registry.AddComponent<ECS::Render>(chaser, ECS::Render::Make(TRIANGLE, sf::Color::Red));
+    registry.AddComponent<ECS::Physics>(chaser);
+    auto& chaserSteering = registry.AddComponent<ECS::SteeringTarget>(chaser);
+    chaserSteering.behavior = ECS::SteeringBehavior::Pursuit;
+    chaserSteering.followEntity = tri;
+    chaserSteering.followAnEntity = true;
+    chaserSteering.predictionTime = 0.5f;
+    chaserSteering.enabled = true;
+    auto& chaserLap = registry.AddComponent<ECS::LapCounter>(chaser);
+    chaserLap.trackEntity = track;
+    if (auto* chaserPh = registry.TryGetComponent<ECS::Physics>(chaser)) {
+        chaserPh->maxSpeed = 65.f;  // un poco más lento que tri
+        chaserPh->maxForce = 35.f;
+    }
+
+    /** Obstáculo — solo Transform y Render, con tag Obstacle
     ECS::EntityID obstacle = registry.CreateEntity();
     registry.AddComponent<ECS::Transform>(obstacle, sf::Vector2f{ 300.f, 250.f });
     registry.AddComponent<ECS::Render>(obstacle, ECS::Render::Make(CIRCLE, sf::Color(200, 50, 50)));
-    registry.AddComponent<ECS::Obstacle>(obstacle);
+    registry.AddComponent<ECS::Obstacle>(obstacle);*/
+
+   
+
+    // El punto para alnclar la cámara
+    ECS::EntityID camAnchor = registry.CreateEntity();
+    registry.AddComponent<ECS::Transform>(camAnchor, sf::Vector2f{ 400.f, 300.f });
 
     ECS::EntityID cam = registry.CreateEntity();
     registry.AddComponent<ECS::Transform>(cam, sf::Vector2f{ 400.f, 300.f });
     auto& camComp = registry.AddComponent<ECS::Camera>(cam);
-    camComp.followTarget = circle;     // la cámara sigue al player
-    camComp.followSpeed = 5.f;        // sube para que se pegue más rápido
+    camComp.followTarget = camAnchor;
+    camComp.followSpeed = 5.f;
     camComp.zoom = 1;
 
-
-   
+    deltaClock.restart();
 
     while (g_window.isOpen()) {
         while (const std::optional event =
@@ -151,7 +210,8 @@ int main()
         }
 
         const sf::Time elapsedTime = deltaClock.restart();
-        const float dt = elapsedTime.asSeconds();
+        float dt = elapsedTime.asSeconds();
+        if (dt > 0.1f) dt = 0.1f;
 
         // Iniciar el frame de ImGui.
         ImGui::SFML::Update(*g_window.m_window, elapsedTime);
@@ -160,6 +220,8 @@ int main()
         g_window.clear(sf::Color::Black);
 
         DrawMSAASettings();
+        DrawLapCounters();
+
         // Renderizar los elementos de tu ECS.
         registry.UpdateSystems(dt);
 

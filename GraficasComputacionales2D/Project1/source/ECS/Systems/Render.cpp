@@ -25,6 +25,7 @@ namespace ECS {
             tri->setPoint(0, { 0.f, -30.f });
             tri->setPoint(1, { -25.f, 25.f });
             tri->setPoint(2, { 25.f, 25.f });
+            tri->setOrigin({ 0.f, 5.f });
             render.shape = tri;
             break;
         }

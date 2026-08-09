@@ -178,6 +178,7 @@
     <ClCompile Include="source\Core\CShape.cpp" />
     <ClCompile Include="source\Core\Window.cpp" />
     <ClCompile Include="source\ECS\Components\Path.cpp" />
+    <ClCompile Include="source\ECS\Components\Sprite.cpp" />
     <ClCompile Include="source\ECS\Systems\IASystem.cpp" />
     <ClCompile Include="source\ECS\Systems\Render.cpp" />
     <ClCompile Include="source\ECS\Systems\RenderSystem.cpp" />
@@ -188,10 +189,12 @@
     <ClInclude Include="include\Core\Window.h" />
     <ClInclude Include="include\ECS\ComponentPool.h" />
     <ClInclude Include="include\ECS\Components\Camera.h" />
+    <ClInclude Include="include\ECS\Components\LapCounter.h" />
     <ClInclude Include="include\ECS\Components\Obstacle.h" />
     <ClInclude Include="include\ECS\Components\Path.h" />
     <ClInclude Include="include\ECS\Components\Physics.h" />
     <ClInclude Include="include\ECS\Components\Render.h" />
+    <ClInclude Include="include\ECS\Components\Sprite.h" />
     <ClInclude Include="include\ECS\Components\SteeringTarget.h" />
     <ClInclude Include="include\ECS\Components\Transform.h" />
     <ClInclude Include="include\ECS\Registry.h" />

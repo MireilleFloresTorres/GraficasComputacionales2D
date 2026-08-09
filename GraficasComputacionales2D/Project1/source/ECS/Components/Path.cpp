@@ -2,6 +2,15 @@
 
 namespace ECS {
 
+    /**
+     * @brief Genera los puntos suavizados de la ruta a partir de los puntos de control.
+     * @details Recorre cada punto de control como segmento de una curva Catmull-Rom,
+     *          usando los puntos vecinos (anterior y siguientes dos, con wrap-around circular)
+     *          para interpolar una cantidad fija de puntos intermedios por curva (segmentsPerCurve).
+     *          El resultado se almacena en el contenedor points.
+     * Si hay menos de 3 puntos de control, la función no genera nada y retorna inmediatamente.
+     */
+
     void Path::GenerateSmoothPoints() {
         points.clear();
         const int n = static_cast<int>(controlPoints.size());

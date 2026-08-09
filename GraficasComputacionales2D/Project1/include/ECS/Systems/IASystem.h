@@ -6,6 +6,7 @@
 #include "ECS/Components/SteeringTarget.h"
 #include "ECS/Components/Obstacle.h"
 #include "ECS/Components/Path.h"
+#include "ECS/Components/LapCounter.h"
 
 namespace ECS {
     class IASystem final : public System {
@@ -26,5 +27,6 @@ namespace ECS {
         static float length(sf::Vector2f v);
         static sf::Vector2f normalize(sf::Vector2f v);
         static sf::Vector2f limit(sf::Vector2f v, float max);
+        static void UpdateLapCounters(Registry& registry);
     };
 }
