@@ -115,7 +115,7 @@ int main()
 
     // Crea entidades 
     ECS::EntityID trackSprite = registry.CreateEntity();
-    registry.AddComponent<ECS::Sprite>(trackSprite, ECS::Sprite::Make("Textures/RaceTrack.jpeg", sf::Vector2f{ 32.f, 116.f }));
+    registry.AddComponent<ECS::Sprite>(trackSprite, ECS::Sprite::Make("Textures/RaceTrack2.jpeg", sf::Vector2f{ 32.f, 41.f }));
 
     // Pista
     ECS::EntityID track = registry.CreateEntity();
@@ -123,11 +123,16 @@ int main()
 
     trackPath.segmentsPerCurve = 20;
     trackPath.controlPoints = {
-     { 216.f, 136.f }, { 584.f, 136.f }, { 700.f, 184.f }, { 748.f, 300.f },
-     { 700.f, 416.f }, { 584.f, 464.f }, { 216.f, 464.f }, { 100.f, 416.f },
-     { 52.f,  300.f }, { 100.f, 184.f }
+     { 40.f,  0.f },   // curva superior izquierda
+     { 694.f, 144.f },   // recta superior
+     { 731.f, 196.f },   // curva superior derecha
+     { 731.f, 429.f },   // recta lateral derecha (baja hacia gas station)
+     { 658.f, 506.f },   // curva inferior derecha
+     { 290.f, 506.f },   // recta inferior
+     { 10.f, 480.f },   // curva inferior izquierda
+     { 69.f,  300.f }    // recta lateral izquierda (sube de regreso)
     };
-    trackPath.radius = 20.f; 
+    trackPath.radius = 30.f; 
     trackPath.GenerateSmoothPoints();
     
     /** El steering se asigna desde el Inspector
@@ -139,7 +144,7 @@ int main()
 
     // Triángulo 1 — sigue la pista (PathFollowing)
     ECS::EntityID tri = registry.CreateEntity();
-    auto& triTransform = registry.AddComponent<ECS::Transform>(tri, sf::Vector2f{ 216.f, 136.f });
+    auto& triTransform = registry.AddComponent<ECS::Transform>(tri, sf::Vector2f{ 84.f, 181.f });
     triTransform.scale = { 0.4f, 0.4f };
     registry.AddComponent<ECS::Render>(tri, ECS::Render::Make(TRIANGLE, sf::Color(255, 255, 150), "Textures/ColorChecker.png"));
     registry.AddComponent<ECS::Physics>(tri);
@@ -156,7 +161,7 @@ int main()
 
     // Triángulo 2 — persigue al Triángulo 1 (Pursuit)
     ECS::EntityID chaser = registry.CreateEntity();
-    auto& chaserTransform = registry.AddComponent<ECS::Transform>(chaser, sf::Vector2f{ 216.f, 136.f }); // igual que tri
+    auto& chaserTransform = registry.AddComponent<ECS::Transform>(chaser, sf::Vector2f{ 84.f, 181.f });// igual que tri
     chaserTransform.scale = { 0.4f, 0.4f };
     registry.AddComponent<ECS::Render>(chaser, ECS::Render::Make(TRIANGLE, sf::Color(255, 150, 150), "Textures/ColorChecker.png"));
     registry.AddComponent<ECS::Physics>(chaser);

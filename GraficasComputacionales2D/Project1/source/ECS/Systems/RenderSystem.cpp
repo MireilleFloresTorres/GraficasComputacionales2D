@@ -21,7 +21,7 @@ namespace ECS {
                 m_window.draw(*r.shape);
             });
 
-        //DrawPaths(registry);// el sprite como visual de la pista
+        DrawPaths(registry);// el sprite como visual de la pista
     }
 
     void RenderSystem::DrawSprites(Registry& registry) {
