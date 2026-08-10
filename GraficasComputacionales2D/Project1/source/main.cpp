@@ -141,7 +141,7 @@ int main()
     ECS::EntityID tri = registry.CreateEntity();
     auto& triTransform = registry.AddComponent<ECS::Transform>(tri, sf::Vector2f{ 216.f, 136.f });
     triTransform.scale = { 0.4f, 0.4f };
-    registry.AddComponent<ECS::Render>(tri, ECS::Render::Make(TRIANGLE, sf::Color::Yellow));
+    registry.AddComponent<ECS::Render>(tri, ECS::Render::Make(TRIANGLE, sf::Color(255, 255, 150), "Textures/ColorChecker.png"));
     registry.AddComponent<ECS::Physics>(tri);
     auto& triSteering = registry.AddComponent<ECS::SteeringTarget>(tri);
     triSteering.behavior = ECS::SteeringBehavior::PathFollowing;
@@ -158,7 +158,7 @@ int main()
     ECS::EntityID chaser = registry.CreateEntity();
     auto& chaserTransform = registry.AddComponent<ECS::Transform>(chaser, sf::Vector2f{ 216.f, 136.f }); // igual que tri
     chaserTransform.scale = { 0.4f, 0.4f };
-    registry.AddComponent<ECS::Render>(chaser, ECS::Render::Make(TRIANGLE, sf::Color::Red));
+    registry.AddComponent<ECS::Render>(chaser, ECS::Render::Make(TRIANGLE, sf::Color(255, 150, 150), "Textures/ColorChecker.png"));
     registry.AddComponent<ECS::Physics>(chaser);
     auto& chaserSteering = registry.AddComponent<ECS::SteeringTarget>(chaser);
     chaserSteering.behavior = ECS::SteeringBehavior::Pursuit;
