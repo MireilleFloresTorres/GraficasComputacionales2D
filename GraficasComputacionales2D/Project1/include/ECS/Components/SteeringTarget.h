@@ -35,5 +35,8 @@ namespace ECS {
         /** @brief Radio de detección dentro del cual los obstáculos generan repulsión. */
         float obstacleDetectionRadius{ 120.f };
         float obstacleAvoidForce{ 300.f };
+        // memoria de progreso
+        std::size_t lastPathIndex{ 0 };
+        bool pathIndexInitialized{ false };
     };
 }

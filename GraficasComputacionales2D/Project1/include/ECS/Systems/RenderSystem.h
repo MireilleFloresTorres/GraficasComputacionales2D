@@ -27,7 +27,7 @@ namespace ECS {
         * @brief Dibuja todas las entidades visuales del frame en orden de capas
         */
         void OnUpdate(Registry& registry, float /*deltatime*/) override;
-
+        void DrawControlPoints(Registry& registry);
     private:
         void DrawPaths(Registry& registry);
         Window& m_window;

@@ -27,7 +27,7 @@
  *
  * @return 0 si termina correctamente, -1 si falla la inicialización de ImGui.
  */
-Window g_window(Window(800, 600, "Labrid Engine")); ///< Ventana principal de la aplicación.
+Window g_window(Window(800, 600, "Labrid Engine")); //< Ventana principal de la aplicación.
 ECS::Registry registry; // Registro ECS global
 
 
@@ -88,6 +88,26 @@ void DrawMSAASettings() {
     ImGui::End();
 }
 
+void DrawPathEditor(ECS::Path& path, bool& editMode) {
+    ImGui::Begin("Path Editor");
+    ImGui::Checkbox("Editar puntos (clic + arrastrar)", &editMode);
+    ImGui::Separator();
+
+    for (std::size_t i = 0; i < path.controlPoints.size(); ++i) {
+        ImGui::Text("Punto %zu: (%.1f, %.1f)", i, path.controlPoints[i].x, path.controlPoints[i].y);
+    }
+
+    ImGui::Separator();
+    if (ImGui::Button("Imprimir puntos en consola")) {
+        std::cout << "trackPath.controlPoints = {\n";
+        for (const auto& p : path.controlPoints) {
+            std::cout << "    { " << p.x << "f, " << p.y << "f },\n";
+        }
+        std::cout << "};\n";
+    }
+    ImGui::End();
+}
+
 void DrawLapCounters() {
     ImGui::Begin("Vueltas");
     registry.GetView<ECS::LapCounter, ECS::Render>().Each(
@@ -123,16 +143,23 @@ int main()
 
     trackPath.segmentsPerCurve = 20;
     trackPath.controlPoints = {
-     { 40.f,  0.f },   // curva superior izquierda
-     { 694.f, 144.f },   // recta superior
-     { 731.f, 196.f },   // curva superior derecha
-     { 731.f, 429.f },   // recta lateral derecha (baja hacia gas station)
-     { 658.f, 506.f },   // curva inferior derecha
-     { 290.f, 506.f },   // recta inferior
-     { 10.f, 480.f },   // curva inferior izquierda
-     { 69.f,  300.f }    // recta lateral izquierda (sube de regreso)
+         { 288.f, 309.5f },
+         { 565.f, 333.5f },
+         { 603.f, 509.5f },
+         { 706.f, 511.5f },
+         { 694.f, 184.5f },
+         { 408.f, 162.5f },
+         { 99.f, 182.5f },
+         { 106.f, 509.5f },
+         { 315.f, 526.5f },
+         { 501.f, 517.5f },
+         { 508.f, 449.5f },
+         { 355.f, 433.5f },
+         { 169.f, 425.5f },
+         { 155.f, 329.5f },
+
     };
-    trackPath.radius = 30.f; 
+    trackPath.radius = 20.f; 
     trackPath.GenerateSmoothPoints();
     
     /** El steering se asigna desde el Inspector
@@ -144,8 +171,8 @@ int main()
 
     // Triángulo 1 — sigue la pista (PathFollowing)
     ECS::EntityID tri = registry.CreateEntity();
-    auto& triTransform = registry.AddComponent<ECS::Transform>(tri, sf::Vector2f{ 84.f, 181.f });
-    triTransform.scale = { 0.4f, 0.4f };
+    auto& triTransform = registry.AddComponent<ECS::Transform>(tri, sf::Vector2f{ 288.f, 309.5f });
+    triTransform.scale = { 0.5f, 0.5f };
     registry.AddComponent<ECS::Render>(tri, ECS::Render::Make(TRIANGLE, sf::Color(255, 255, 150), "Textures/ColorChecker.png"));
     registry.AddComponent<ECS::Physics>(tri);
     auto& triSteering = registry.AddComponent<ECS::SteeringTarget>(tri);
@@ -155,14 +182,14 @@ int main()
     auto& triLap = registry.AddComponent<ECS::LapCounter>(tri);
     triLap.trackEntity = track;
     if (auto* triPh = registry.TryGetComponent<ECS::Physics>(tri)) {
-        triPh->maxSpeed = 80.f;
-        triPh->maxForce = 40.f; // más fuerza de giro relativa a su velocidad
+        triPh->maxSpeed = 50.f;
+        triPh->maxForce = 30.f; // más fuerza de giro relativa a su velocidad
     }
 
     // Triángulo 2 — persigue al Triángulo 1 (Pursuit)
     ECS::EntityID chaser = registry.CreateEntity();
-    auto& chaserTransform = registry.AddComponent<ECS::Transform>(chaser, sf::Vector2f{ 84.f, 181.f });// igual que tri
-    chaserTransform.scale = { 0.4f, 0.4f };
+    auto& chaserTransform = registry.AddComponent<ECS::Transform>(chaser, sf::Vector2f{ 288.f, 309.5 });// igual que tri
+    chaserTransform.scale = { 0.5f, 0.5f };
     registry.AddComponent<ECS::Render>(chaser, ECS::Render::Make(TRIANGLE, sf::Color(255, 150, 150), "Textures/ColorChecker.png"));
     registry.AddComponent<ECS::Physics>(chaser);
     auto& chaserSteering = registry.AddComponent<ECS::SteeringTarget>(chaser);
@@ -174,8 +201,8 @@ int main()
     auto& chaserLap = registry.AddComponent<ECS::LapCounter>(chaser);
     chaserLap.trackEntity = track;
     if (auto* chaserPh = registry.TryGetComponent<ECS::Physics>(chaser)) {
-        chaserPh->maxSpeed = 65.f;  // un poco más lento que tri
-        chaserPh->maxForce = 35.f;
+        chaserPh->maxSpeed = 47.f;  // un poco más lento que tri
+        chaserPh->maxForce = 30.f;
     }
 
     /** Obstáculo — solo Transform y Render, con tag Obstacle
@@ -212,6 +239,7 @@ int main()
             else if (const auto* resized = event->getIf<sf::Event::Resized>()) {
                 g_window.handleResize(resized->size);
             }
+           
         }
 
         const sf::Time elapsedTime = deltaClock.restart();

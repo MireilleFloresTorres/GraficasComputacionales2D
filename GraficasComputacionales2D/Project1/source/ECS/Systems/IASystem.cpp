@@ -178,21 +178,38 @@ namespace ECS {
      * @param self Entidad que se está evaluando, excluida de la búsqueda.
      */
     sf::Vector2f IASystem::PathFollowingForce(Registry& registry, const Transform& t,
-        const Physics& ph, const SteeringTarget& st) {
+        const Physics& ph, SteeringTarget& st) {
         if (!registry.IsAlive(st.followEntity)) return { 0.f, 0.f };
         auto* path = registry.TryGetComponent<Path>(st.followEntity);
         if (!path || path->points.size() < 2) return { 0.f, 0.f };
 
+        const auto& pts = path->points;
+        const std::size_t n = pts.size();
+
         sf::Vector2f dir = length(ph.velocity) > 0.f ? normalize(ph.velocity) : sf::Vector2f{ 0.f, 0.f };
-        sf::Vector2f future = t.position + dir * 10.f;
+        sf::Vector2f future = t.position + dir * 5.f;
+
+        // búsqued solo revisa segmentos cerca del progreso anterior
+        const std::size_t windowSize = 30; // 
+
+        std::size_t startIdx, endIdx;
+        if (!st.pathIndexInitialized) {
+            //busca en todo el path para encontrar el punto de partida
+            startIdx = 0;
+            endIdx = n;
+        }
+        else {
+            startIdx = st.lastPathIndex;
+            endIdx = st.lastPathIndex + windowSize;
+        }
 
         float worldRecord = std::numeric_limits<float>::max();
         sf::Vector2f target{ 0.f, 0.f };
+        std::size_t bestIndex = st.lastPathIndex;
         bool found = false;
 
-        const auto& pts = path->points;
-        const std::size_t n = pts.size();
-        for (std::size_t i = 0; i < n; ++i) {
+        for (std::size_t k = startIdx; k < endIdx; ++k) {
+            std::size_t i = k % n;
             const sf::Vector2f& a = pts[i];
             const sf::Vector2f& b = pts[(i + 1) % n];
 
@@ -207,13 +224,17 @@ namespace ECS {
             float distance = length(future - normalPoint);
             if (distance < worldRecord) {
                 worldRecord = distance;
+                bestIndex = i;
                 sf::Vector2f segDir = segLen > 0.f ? normalize(b - a) : sf::Vector2f{ 0.f, 0.f };
-                target = normalPoint + segDir * 25.f;
+                target = normalPoint + segDir * 8.f;
                 found = true;
             }
         }
 
         if (!found) return { 0.f, 0.f };
+
+        st.lastPathIndex = bestIndex;
+        st.pathIndexInitialized = true;
 
         sf::Vector2f diff = target - t.position;
         if (length(diff) == 0.f) return ph.velocity;
@@ -244,6 +265,14 @@ namespace ECS {
         return length(v) > max ? normalize(v) * max : v;
     }
 
+ /**
+ * @brief Actualiza las vueltas completadas por las entidades
+ *
+ * Busca el punto de la trayectoria más cercano a cada entidad y detecta
+ * cuando esta cruza del final de la trayectoria al inicio
+ *
+ * @param registry Registro que contiene las entidades y sus componentes.
+ */
     void IASystem::UpdateLapCounters(Registry& registry) {
         registry.GetView<Transform, LapCounter>().Each(
             [&registry](EntityID, Transform& t, LapCounter& lap) {

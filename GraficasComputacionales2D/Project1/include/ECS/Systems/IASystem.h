@@ -39,7 +39,7 @@ namespace ECS {
         static sf::Vector2f ObstacleAvoidanceForce(Registry& registry, EntityID self, const sf::Vector2f& pos, const SteeringTarget& st);
 
         /** @brief Fuerza de dirección para seguir el Path de la entidad referenciada en la SteeringTarget. */
-        static sf::Vector2f PathFollowingForce(Registry& registry, const Transform& t, const Physics& ph, const SteeringTarget& st);
+        static sf::Vector2f PathFollowingForce(Registry& registry, const Transform& t, const Physics& ph, SteeringTarget& st);
 
         /** @brief Proyecta el punto p sobre el segmento de línea a-b y devuelve el punto proyectado. */
         static sf::Vector2f getNormalPoint(const sf::Vector2f& p, const sf::Vector2f& a, const sf::Vector2f& b);

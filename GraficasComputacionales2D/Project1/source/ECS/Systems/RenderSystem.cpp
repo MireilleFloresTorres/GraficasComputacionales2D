@@ -22,6 +22,22 @@ namespace ECS {
             });
 
         DrawPaths(registry);// el sprite como visual de la pista
+        DrawControlPoints(registry);
+    }
+
+    void RenderSystem::DrawControlPoints(Registry& registry) {
+        registry.GetView<Path>().Each(
+            [this](EntityID /*entity*/, Path& path) {
+                for (std::size_t i = 0; i < path.controlPoints.size(); ++i) {
+                    sf::CircleShape circle(8.f);
+                    circle.setOrigin({ 8.f, 8.f });
+                    circle.setPosition(path.controlPoints[i]);
+                    circle.setFillColor(sf::Color::Cyan);
+                    circle.setOutlineColor(sf::Color::Black);
+                    circle.setOutlineThickness(2.f);
+                    m_window.draw(circle);
+                }
+            });
     }
 
     void RenderSystem::DrawSprites(Registry& registry) {
